@@ -10,6 +10,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "sourceMap": true,
+    "noImplicitAny": true,
   },
   "include": [
     "./src/*"
