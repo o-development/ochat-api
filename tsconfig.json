@@ -4,6 +4,7 @@
     "allowSyntheticDefaultImports": true,
     "lib": ["dom", "esnext"],
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "strict": true,
