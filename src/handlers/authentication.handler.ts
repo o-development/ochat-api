@@ -1,9 +1,7 @@
 import { Express } from "express";
 import session from "express-session";
-import { SessionManager } from "@inrupt/solid-auth-fetcher";
 import URL from "url-parse";
-
-const sessionManager = new SessionManager();
+import { sessionManager } from "../util/AuthSessionManager";
 
 const hostUrl = process.env.HOST_URL || "http://localhost:9000";
 
@@ -23,7 +21,6 @@ export default function authenticationHandler(app: Express): void {
     if (req.session) {
       req.session.redirect = redirect;
     }
-    console.log(req.session);
     await session.login({
       oidcIssuer: new URL(issuer as string),
       redirectUrl: new URL(`${hostUrl}/auth/callback`),
@@ -35,7 +32,6 @@ export default function authenticationHandler(app: Express): void {
 
   app.get("/auth/callback", async (req, res) => {
     await sessionManager.handleIncomingRedirect(req.url);
-    console.log(req.session);
     if (req.session && req.session.redirect) {
       res.redirect(`${req.session.redirect}?key=${req.sessionID}`);
     } else {

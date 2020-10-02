@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 
 const indexProfileHandler: RequestHandler = (req, res) => {
-  console.log("meh");
+  // Do Nothing
 };
 
 export default indexProfileHandler;
