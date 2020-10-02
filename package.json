@@ -38,10 +38,11 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.9.1",
-    "@inrupt/solid-auth-fetcher": "0.0.6",
+    "@inrupt/solid-auth-fetcher": "jaxoncreed/solid-auth-fetcher-fork#master",
     "@inrupt/solid-client-authn-browser": "^0.1.4",
     "@rdfjs/fetch": "^2.1.0",
     "clownface": "^1.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "typeorm": "^0.2.26",

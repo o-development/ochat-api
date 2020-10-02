@@ -1,8 +1,11 @@
 import express from "express";
 // import indexChatHandler from "./handlers/indexChat.handler";
 import authenticationHandler from "./handlers/authentication.handler";
+import dotenv from "dotenv";
 
-const PORT = 9000;
+dotenv.config();
+
+const PORT = process.env.PORT || 9000;
 
 const app = express();
 
