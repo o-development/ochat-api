@@ -32,8 +32,11 @@ export default function authenticationHandler(app: Express): void {
 
   app.get("/auth/callback", async (req, res) => {
     await sessionManager.handleIncomingRedirect(req.url);
+    const authSession = await sessionManager.getSession(req.sessionID);
     if (req.session && req.session.redirect) {
-      res.redirect(`${req.session.redirect}?key=${req.sessionID}`);
+      res.redirect(
+        `${req.session.redirect}?key=${req.sessionID}&webid=${authSession.info.webId}`
+      );
     } else {
       res.status(500).send("Session problem");
     }
