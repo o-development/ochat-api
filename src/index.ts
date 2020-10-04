@@ -13,6 +13,10 @@ app.use(cors());
 
 authenticationHandler(app);
 
+app.get("/", (req, res) => {
+  res.send("API Online.");
+})
+
 app.get("/profile/index", indexProfileHandler);
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
