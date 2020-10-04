@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
+    "target": "ES6",
     "allowSyntheticDefaultImports": true,
     "lib": ["dom", "esnext"],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "module": "commonjs",
     "strict": true,
     "outDir": "dist",
     "baseUrl": ".",
