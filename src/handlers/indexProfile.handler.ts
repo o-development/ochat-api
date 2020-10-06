@@ -10,8 +10,9 @@ const indexProfileHandler: RequestHandler = async (req, res) => {
   const response = await authSession.fetch(
     "https://jackson.solid.community/private/chatsStorage.ttl"
   );
-  console.log(await response.text());
-  res.send();
+  const text = await response.text();
+  console.log("text");
+  res.send(text);
 };
 
 export default indexProfileHandler;
