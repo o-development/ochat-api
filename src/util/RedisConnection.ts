@@ -11,5 +11,5 @@ export const redisClient = redis.createClient({
 });
 
 redisClient.on("error", (error) => {
-  console.error(error);
+  console.error("Redis Error: ", error);
 });
