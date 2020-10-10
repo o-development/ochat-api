@@ -15,14 +15,12 @@ export default function authenticationHandler(app: Express): void {
   );
 
   app.get("/auth/login", async (req, res) => {
-    console.log("AUTH 1 ===================");
     const { redirect, issuer } = req.query;
 
     const session = await sessionManager.getSession(req.sessionID);
     if (req.session) {
       req.session.redirect = redirect;
     }
-    console.log(session.info);
     await session.login({
       oidcIssuer: new URL(issuer as string),
       redirectUrl: new URL(`${hostUrl}/auth/callback`),
@@ -33,11 +31,8 @@ export default function authenticationHandler(app: Express): void {
   });
 
   app.get("/auth/callback", async (req, res) => {
-    console.log("AUTH 2 ===================");
-    console.log(req.url);
     await sessionManager.handleIncomingRedirect(req.url);
     const authSession = await sessionManager.getSession(req.sessionID);
-    console.log(authSession.info);
     if (req.session && req.session.redirect) {
       res.redirect(
         `${req.session.redirect}?key=${req.sessionID}&webid=${authSession.info.webId}`

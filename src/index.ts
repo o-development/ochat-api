@@ -4,7 +4,9 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import authenticationHandler from "./handlers/authentication.handler";
-import indexProfileHandler from "./handlers/indexProfile.handler";
+import indexAuthorizedProfile from "./handlers/indexAuthorizedProfile.handler";
+import extractAuth from "./middleware/extractAuth";
+import handleError from "./middleware/handleError";
 
 const PORT = process.env.PORT || 9000;
 
@@ -13,11 +15,15 @@ app.use(cors());
 
 authenticationHandler(app);
 
+app.use(extractAuth);
+
 app.get("/", (req, res) => {
   res.send("API Online.");
-})
+});
 
-app.get("/profile/index", indexProfileHandler);
+app.post("/profile/index", indexAuthorizedProfile);
+
+app.use(handleError);
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
