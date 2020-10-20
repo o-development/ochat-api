@@ -2,7 +2,7 @@ import Profile from "./Profile";
 import fetcherType from "../../util/fetcherType";
 import getProfile from "./getProfile";
 import EsClient from "../../util/EsClient";
-import HttpError from "src/util/HttpError";
+import HttpError from "../../util/HttpError";
 
 export default async function indexProfile(
   profileUrl: string,

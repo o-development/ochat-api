@@ -7,6 +7,7 @@ import authenticationHandler from "./handlers/authentication.handler";
 import indexAuthorizedProfile from "./handlers/indexAuthorizedProfile.handler";
 import extractAuth from "./middleware/extractAuth";
 import handleError from "./middleware/handleError";
+import searchChatHandler from "./handlers/searchChat.handler";
 
 const PORT = process.env.PORT || 9000;
 
@@ -22,6 +23,8 @@ app.get("/", (req, res) => {
 });
 
 app.post("/profile/index", indexAuthorizedProfile);
+
+app.get("/chat/search", searchChatHandler);
 
 app.use(handleError);
 
