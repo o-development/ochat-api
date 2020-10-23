@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import handlers from "./handlers/handlers";
+import cronJobs from "./cronJobs/cronJobs";
 
 const PORT = process.env.PORT || 9000;
 
@@ -15,5 +16,7 @@ app.get("/", (req, res) => {
 });
 
 handlers.forEach((handler) => handler(app));
+
+cronJobs.forEach((cronJob) => cronJob());
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
