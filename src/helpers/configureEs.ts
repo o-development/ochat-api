@@ -11,6 +11,7 @@ EsClient.indices.create({
         webId: { type: "keyword" },
         name: { type: "search_as_you_type" },
         image: { type: "text" },
+        searchable: { type: "boolean" },
       },
     },
   },

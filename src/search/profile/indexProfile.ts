@@ -6,9 +6,11 @@ import HttpError from "../../util/HttpError";
 
 export default async function indexProfile(
   profileUrl: string,
+  searchable: boolean,
   fetcher?: fetcherType
 ): Promise<Profile> {
   const profile = await getProfile(profileUrl, fetcher);
+  profile.searchable = searchable;
   try {
     await EsClient.create({
       id: profile.webId,

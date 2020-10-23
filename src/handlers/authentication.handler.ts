@@ -1,11 +1,11 @@
-import { Express } from "express";
+import IHandler from "./IHandler";
 import session from "express-session";
 import URL from "url-parse";
 import { sessionManager } from "../util/AuthSessionManager";
 
 const hostUrl = process.env.HOST_URL || "http://localhost:9000";
 
-export default function authenticationHandler(app: Express): void {
+const authenticationHandler: IHandler = (app) => {
   app.use(
     "/auth",
     session({
@@ -41,4 +41,19 @@ export default function authenticationHandler(app: Express): void {
       res.status(500).send("Session problem");
     }
   });
-}
+
+  app.use(async (req, res, next) => {
+    const authSessionId = req.headers.authorization;
+    if (!authSessionId) {
+      next();
+      return;
+    }
+    const authSession = await sessionManager.getSession(authSessionId);
+    if (authSession.info.isLoggedIn) {
+      req.authSession = authSession;
+    }
+    next();
+  });
+};
+
+export default authenticationHandler;
