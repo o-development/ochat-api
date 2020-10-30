@@ -1,6 +1,6 @@
-type fetcherType = (
+type IFetcher = (
   requestInfo: RequestInfo,
   requestInit?: RequestInit
 ) => Promise<Response>;
 
-export default fetcherType;
+export default IFetcher;

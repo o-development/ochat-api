@@ -1,14 +1,14 @@
-import { Client } from "@elastic/elasticsearch";
-import Chat from "./Chat";
+import Chat from "./IChat";
+import IFetcher from "../util/IFetcher";
 
 export default async function searchChats(
-  client: Client,
-  options: {
+  searchOptions: {
     includeProfiles?: boolean;
     page: number;
     limit: number;
     term: string;
-  }
+  },
+  options: { fetcher?: IFetcher; webId: string }
 ): Promise<Chat[]> {
   throw new Error("meh");
 }

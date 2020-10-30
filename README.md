@@ -13,7 +13,7 @@
     - POST /chat/:chat_url (Index a particular chat)
     - PUT /chat/:chat_url (Update a particular chat)
     - POST /chat (Create a chat with certain chat information)
-    - POST /chat/search (search all chats that you can access)
+    - POST /chat/search?term=search%20term& (search all chats that you can access)
  - /message (does nothing)
     - GET /message/:chat_url?page=PAGE_NUMBER (get all messages of a certain page)
     - POST /message/:chat_url (send a message)

@@ -1,7 +1,7 @@
 import IHandler from "./IHandler";
 import session from "express-session";
 import URL from "url-parse";
-import { sessionManager } from "../util/AuthSessionManager";
+import { sessionManager, setSessionByWebId } from "../util/AuthSessionManager";
 
 const hostUrl = process.env.HOST_URL || "http://localhost:9000";
 
@@ -33,6 +33,7 @@ const authenticationHandler: IHandler = (app) => {
   app.get("/auth/callback", async (req, res) => {
     await sessionManager.handleIncomingRedirect(req.url);
     const authSession = await sessionManager.getSession(req.sessionID);
+    await setSessionByWebId(authSession);
     if (req.session && req.session.redirect) {
       res.redirect(
         `${req.session.redirect}?key=${req.sessionID}&webid=${authSession.info.webId}`

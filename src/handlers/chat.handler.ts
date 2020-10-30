@@ -1,51 +1,85 @@
 import IHandler from "./IHandler";
-import oneSignalClient from "../util/OneSignalClient";
-import { HTTPError as OneSignalHTTPError } from "onesignal-node";
+import { toIChat, toIChatPartial } from "../chat/IChat";
+import newChat from "../chat/newChat";
+import HttpError from "../util/HttpError";
+import searchChats from "../chat/searchChats";
+import toUri from "../util/toUri";
+import getChatIndex from "../chat/getChatIndex";
+import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
+import newChatIndex from "../chat/newChatIndex";
+import updateChatIndex from "../chat/updateChatIndex";
 
 const chatHandler: IHandler = (app) => {
-  app.post("/chat", () => {
-    // TODO
+  // New Chat
+  app.post("/chat", async (req, res) => {
+    const chat = toIChat(req.body);
+    const authSession = getLoggedInAuthSession(req);
+    const savedChat = await newChat(chat, {
+      fetcher: authSession.fetch.bind(req.authSession),
+      webId: authSession.info.webId,
+    });
+    res.status(201).send(savedChat);
   });
 
+  // Search Chats
+  // query: term, page, limit
   app.post("/chat/search", async (req, res) => {
-    // See all fields: https://documentation.onesignal.com/reference/create-notification
-    const notification = {
-      contents: {
-        tr: "Yeni bildirim",
-        en: "New notification",
-      },
-      included_segments: ["Subscribed Users"],
-    };
-
-    // using async/await
-    try {
-      const response = await oneSignalClient.createNotification(notification);
-      console.log(response);
-      console.log(response.body.id);
-    } catch (e) {
-      console.log(1.5);
-      console.log(e.message);
-      if (e instanceof OneSignalHTTPError) {
-        // When status code of HTTP response is not 2xx, HTTPError is thrown.
-        console.log(2);
-        console.log(e.statusCode);
-        console.log(e.body);
-      }
+    const authSession = getLoggedInAuthSession(req);
+    if (
+      typeof req.query.term !== "string" ||
+      !(!req.query.page || typeof req.query.page === "string") ||
+      !(!req.query.limit || typeof req.query.limit === "string")
+    ) {
+      throw new HttpError(
+        "Only one parameter is allowed for term, page, and limit",
+        400
+      );
     }
-
-    res.send("Cool stuff");
+    const term = req.query.term;
+    const page = parseInt(req.query.page || "0");
+    const limit = parseInt(req.query.limit || "10");
+    const searchResults = await searchChats(
+      { term, page, limit },
+      {
+        fetcher: authSession.fetch.bind(req.authSession),
+        webId: authSession.info.webId,
+      }
+    );
+    res.status(200).send(searchResults);
   });
 
-  app.get("/chat/:chat_url", () => {
-    // TODO
+  // Get Chat Index
+  app.get("/chat/:chat_uri", async (req, res) => {
+    const authSession = getLoggedInAuthSession(req);
+    const chatUri = toUri(req.params.chat_uri);
+    const chat = await getChatIndex(chatUri, {
+      fetcher: authSession.fetch.bind(req.authSession),
+      webId: authSession.info.webId,
+    });
+    res.status(200).send(chat);
   });
 
-  app.post("/chat/:chat_url", () => {
-    // TODO
+  // New Chat Index
+  app.post("/chat/:chat_uri", async (req, res) => {
+    const authSession = getLoggedInAuthSession(req);
+    const chatUri = toUri(req.params.chat_uri);
+    const newChat = await newChatIndex(chatUri, {
+      fetcher: authSession.fetch.bind(req.authSession),
+      webId: authSession.info.webId,
+    });
+    res.status(201).send(newChat);
   });
 
-  app.put("/chat/:chat_url", () => {
-    // TODO
+  // Update Chat Index
+  app.put("/chat/:chat_url", async (req, res) => {
+    const authSession = getLoggedInAuthSession(req);
+    const chatUri = toUri(req.params.chat_uri);
+    const chatData = toIChatPartial(req.body);
+    const savedChat = await updateChatIndex(chatUri, chatData, {
+      fetcher: authSession.fetch.bind(req.authSession),
+      webId: authSession.info.webId,
+    });
+    res.status(200).send(savedChat);
   });
 };
 

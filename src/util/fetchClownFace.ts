@@ -3,7 +3,7 @@ import { dataset as Dataset } from "@rdfjs/dataset";
 import ParserN3 from "@rdfjs/parser-n3";
 import { Readable } from "stream";
 import Clownface from "clownface/lib/Clownface";
-import fetchType from "../util/fetcherType";
+import IFetcher from "../util/IFetcher";
 import nodeFetch from "node-fetch";
 import DatasetCore from "@rdfjs/dataset/DatasetCore";
 
@@ -13,7 +13,7 @@ export default async function fetchCf(
   // As long as you don't use the "Request" from "RequestInfo" you're fine - Jackson
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  fetcher: fetchType = nodeFetch
+  fetcher: IFetcher = nodeFetch
 ): Promise<Clownface> {
   const ttl = await (await fetcher(url)).text();
 

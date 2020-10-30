@@ -1,8 +1,8 @@
-import Profile from "./Profile";
-import fetcherType from "../../util/fetcherType";
+import Profile from "./IProfile";
+import fetcherType from "../util/IFetcher";
 import getProfile from "./getProfile";
-import EsClient from "../../util/EsClient";
-import HttpError from "../../util/HttpError";
+import EsClient from "../util/EsClient";
+import HttpError from "../util/HttpError";
 
 export default async function indexProfile(
   profileUrl: string,

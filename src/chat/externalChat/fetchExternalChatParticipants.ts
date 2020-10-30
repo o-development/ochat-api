@@ -1,4 +1,4 @@
-import { ChatParticipant } from "../Chat";
+import { ChatParticipant } from "../IChat";
 
 export default async function fetchChatParticipants(
   chatUrl: string,
