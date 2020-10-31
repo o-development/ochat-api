@@ -1,27 +1,20 @@
 import Profile from "./IProfile";
-import fetcherType from "../util/IFetcher";
-import getProfile from "./getProfile";
+import fetchExternalProfile from "./externalProfile/fetchExternalProfile";
 import EsClient from "../util/EsClient";
 import HttpError from "../util/HttpError";
+import IFetcher from "../util/IFetcher";
+import { createProfileIndex } from "./profileIndexApi";
 
 export default async function indexProfile(
   profileUrl: string,
   searchable: boolean,
-  fetcher?: fetcherType
-): Promise<Profile> {
-  const profile = await getProfile(profileUrl, fetcher);
-  profile.searchable = searchable;
-  try {
-    await EsClient.create({
-      id: profile.webId,
-      index: "profile",
-      body: profile,
-    });
-    return profile;
-  } catch (err) {
-    if (err.meta?.statusCode === 409) {
-      throw new HttpError(`${profile.webId} already indexed`, 409);
-    }
-    throw err;
+  options: {
+    fetcher?: IFetcher;
   }
+): Promise<Profile> {
+  const profile = await fetchExternalProfile(profileUrl, {
+    fetcher: options.fetcher,
+  });
+  profile.searchable = searchable;
+  return createProfileIndex(profile);
 }

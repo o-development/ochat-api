@@ -1,6 +1,6 @@
-import fetchClownFace from "../util/fetchClownFace";
-import IFetcher from "../util/IFetcher";
-import Profile from "./IProfile";
+import fetchClownFace from "../../util/fetchClownFace";
+import IFetcher from "../../util/IFetcher";
+import Profile from "../IProfile";
 import { namedNode } from "@rdfjs/data-model";
 import {
   rdfType,
@@ -10,15 +10,17 @@ import {
   foafImage,
   foafName,
   vcardName,
-} from "../util/nodes";
-import HttpError from "../util/HttpError";
+} from "../../util/nodes";
+import HttpError from "../../util/HttpError";
 
-export default async function getProfile(
+export default async function fetchExternalProfile(
   url: string,
-  fetcher?: IFetcher
+  options: {
+    fetcher?: IFetcher;
+  }
 ): Promise<Profile> {
   // Fetch the given URL
-  const cf = await fetchClownFace(url, fetcher);
+  const cf = await fetchClownFace(url, options.fetcher);
 
   let profileNode = cf.namedNode(namedNode(url));
 
