@@ -1,9 +1,7 @@
 import fetchClownFace from "../../util/fetchClownFace";
 import IFetcher from "../../util/IFetcher";
 import Profile from "../IProfile";
-import { namedNode } from "@rdfjs/data-model";
 import {
-  rdfType,
   SchemaPerson,
   FoafPerson,
   vcardImage,
@@ -20,34 +18,26 @@ export default async function fetchExternalProfile(
   }
 ): Promise<Profile> {
   // Fetch the given URL
-  const cf = await fetchClownFace(url, options.fetcher);
+  try {
+    const profileNode = await fetchClownFace(
+      url,
+      [SchemaPerson, FoafPerson],
+      options.fetcher,
+      { requireAllTypes: true }
+    );
 
-  let profileNode = cf.namedNode(namedNode(url));
-
-  // Check to see if the profile node is really a profile
-  const profileNodeTypeValues = profileNode.out(rdfType).values;
-  if (
-    !(
-      profileNodeTypeValues.includes(SchemaPerson.value) &&
-      profileNodeTypeValues.includes(FoafPerson.value)
-    )
-  ) {
-    // Check to see if there is a node that has the proper values
-    const possibleProfileNodes = cf.has(rdfType, [SchemaPerson, FoafPerson])
-      .values;
-    if (possibleProfileNodes.length > 0) {
-      profileNode = cf.namedNode(namedNode(possibleProfileNodes[0]));
-    } else {
-      throw new HttpError(`"${url}" does not contain a profile.`, 400);
+    // Extract profile from RDF
+    const profile: Profile = {
+      webId: url,
+      image:
+        profileNode.out(vcardImage).value || profileNode.out(foafImage).value,
+      name: profileNode.out(vcardName).value || profileNode.out(foafName).value,
+    };
+    return profile;
+  } catch (err) {
+    if (err.status === 400) {
+      throw new HttpError(`${url} is not a valid WebId`, 400);
     }
+    throw err;
   }
-
-  // Extract profile from RDF
-  const profile: Profile = {
-    webId: profileNode.value,
-    image:
-      profileNode.out(vcardImage).value || profileNode.out(foafImage).value,
-    name: profileNode.out(vcardName).value || profileNode.out(foafName).value,
-  };
-  return profile;
 }

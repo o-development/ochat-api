@@ -1,7 +1,6 @@
 import ICronJob from "./ICronJob";
 import cron from "node-cron";
 import getAllChatIndexIds from "../chat/getAllChatIndexIds";
-import fetchExternalChat from "../chat/externalChat/fetchExternalChat";
 
 const reIndexChatCronJob: ICronJob = () => {
   cron.schedule("0 0 * * *", async () => {

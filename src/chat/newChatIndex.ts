@@ -1,10 +1,17 @@
 import IChat from "./IChat";
 import IFetcher from "../util/IFetcher";
+import externalChatHandlerFactory from "../externalChat/externalChatHandlerFactory";
+import { createChatIndex } from "./chatIndexApi";
 
-export default function newChatIndex(
+export default async function newChatIndex(
   chatUrl: string,
   options: { fetcher?: IFetcher; webId: string }
 ): Promise<IChat> {
-  // TODO
-  throw new Error("not implemented");
+  const externalChatHandler = await externalChatHandlerFactory(
+    chatUrl,
+    undefined,
+    { fetcher: options.fetcher }
+  );
+  const chat = await externalChatHandler.getChat();
+  return createChatIndex(chat);
 }

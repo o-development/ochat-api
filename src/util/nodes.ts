@@ -25,6 +25,7 @@ export const sharedPreferences = namedNode(
   "http://www.w3.org/ns/ui#sharedPreferences"
 );
 export const LongChat = namedNode("http://www.w3.org/ns/pim/meeting#LongChat");
+export const ShortChat = namedNode("http://www.w3.org/ns/pim/meeting#Chat");
 export const dateStart = namedNode(
   "http://www.w3.org/2002/12/cal/ical#dtstart"
 );
@@ -38,3 +39,13 @@ export const messgae = namedNode("http://www.w3.org/2005/01/wf/flow#message");
 export const dateCreatedTerms = namedNode("http://purl.org/dc/terms/created");
 export const content = namedNode("http://rdfs.org/sioc/ns#content");
 export const maker = namedNode("http://xmlns.com/foaf/0.1/maker");
+
+// LDP types
+export const container = namedNode("http://www.w3.org/ns/ldp#Container");
+export const basicContainer = namedNode(
+  "http://www.w3.org/ns/ldp#BasicContainer"
+);
+export const contains = namedNode("http://www.w3.org/ns/ldp#contains");
+export const flowMessage = namedNode(
+  "http://www.w3.org/2005/01/wf/flow#message"
+);

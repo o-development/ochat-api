@@ -1,5 +1,11 @@
 import { Schema } from "jsonschema";
+import IMessage, { IMessageSchema } from "../message/IMessage";
 import validateSchema from "../util/validateSchema";
+
+export enum IChatType {
+  LongChat = "LongChat",
+  ShortChat = "ShortChat",
+}
 
 export interface IChatParticipant {
   name: string;
@@ -9,18 +15,19 @@ export interface IChatParticipant {
 
 export default interface IChat {
   uri: string;
+  type: IChatType;
   name: string;
   images: string[];
   participants: IChatParticipant[];
   isPublic: boolean;
-  lastMessaged: Date;
-  lastMessage: string;
+  lastMessage: IMessage;
 }
 
-const IChatPartialSchema: Schema = {
+export const IChatPartialSchema: Schema = {
   type: "object",
   properties: {
     uri: { type: "string", format: "uri" },
+    type: { type: "string", enum: ["LongChat", "ShortChat"] },
     name: { type: "string" },
     images: {
       type: "array",
@@ -38,12 +45,21 @@ const IChatPartialSchema: Schema = {
       },
     },
     isPublic: { type: "boolean" },
+    lastMessage: IMessageSchema,
   },
 };
 
 const IChatSchema: Schema = {
   ...IChatPartialSchema,
-  required: ["uri", "name", "images", "participants", "isPublic"],
+  required: [
+    "uri",
+    "type",
+    "name",
+    "images",
+    "participants",
+    "isPublic",
+    "lastMessage",
+  ],
   properties: {
     ...IChatPartialSchema.properties,
     participants: {
