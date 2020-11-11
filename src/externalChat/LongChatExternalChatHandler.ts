@@ -17,9 +17,12 @@ import {
 } from "../util/nodes";
 import fetchClownface, { fetchClownfaceDataset } from "../util/fetchClownFace";
 import IFetcher from "../util/IFetcher";
-import HttpError from "..//util/HttpError";
+import HttpError from "../util/HttpError";
 import IMessage, { toIMessage } from "../message/IMessage";
 import { namedNode } from "@rdfjs/dataset";
+import fetchAcl from "../util/fetchAcl";
+import { Access } from "@inrupt/solid-client";
+import fetchExternalProfile from "../profile/externalProfile/fetchExternalProfile";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -51,12 +54,34 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     this.processClownfaceChatNode(chatNode);
   }
 
+  private hasAccess(agentAccess: Access): boolean {
+    // User requires write access to make new files
+    return agentAccess.read && agentAccess.write;
+  }
+
+  private isAdmin(agentAccess: Access): boolean {
+    return agentAccess.read && agentAccess.write && agentAccess.control;
+  }
+
   async fetchExternalChatParticipants(): Promise<void> {
-    // Check to see if the dataset is public (public has read and append)
-    // Check to see the dataset's participants
-    // TODO complete this
-    this.chat.isPublic = true;
+    const agentAccess = await fetchAcl(this.getRootChatUri(), this.fetcher);
+    this.chat.isPublic = this.hasAccess(agentAccess.public);
+
+    const webIdsWithAccess = Object.keys(agentAccess)
+      .filter((key) => key !== "public")
+      .filter((webId) => this.hasAccess(agentAccess[webId]));
     this.chat.participants = [];
+    await Promise.all(
+      webIdsWithAccess.map(async (webId) => {
+        this.chat.participants?.push({
+          webId,
+          isAdmin: this.isAdmin(agentAccess[webId]),
+          name:
+            (await fetchExternalProfile(webId, { fetcher: this.fetcher }))
+              .name || "",
+        });
+      })
+    );
   }
 
   private async getContainedNodesFromContainer(
@@ -75,6 +100,15 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     return containedNodes;
   }
 
+  private getRootChatUri() {
+    const rootChatUri = new URL(this.uri);
+    const splitPathname = rootChatUri.pathname.split("/");
+    splitPathname[splitPathname.length - 1] = "";
+    rootChatUri.pathname = splitPathname.join("/");
+    rootChatUri.hash = "";
+    return rootChatUri.toString();
+  }
+
   private async getLongChatMessageDocumentUrl(
     pageNumber: number
   ): Promise<string> {
@@ -84,7 +118,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     rootChatUri.pathname = splitPathname.join("/");
     rootChatUri.hash = "";
     const yearNodes = await this.getContainedNodesFromContainer(
-      rootChatUri.toString()
+      this.getRootChatUri()
     );
     let discoveredCounter = 0;
     for (let y = 0; y < yearNodes.length; y++) {

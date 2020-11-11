@@ -51,6 +51,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.9.1",
     "@inrupt/solid-auth-fetcher": "jaxoncreed/solid-auth-fetcher-fork#master",
+    "@inrupt/solid-client": "^1.0.0",
     "@inrupt/solid-client-authn-browser": "^0.1.4",
     "@rdfjs/fetch": "^2.1.0",
     "body-parser": "^1.19.0",
