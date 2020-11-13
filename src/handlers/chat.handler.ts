@@ -26,9 +26,9 @@ const chatHandler: IHandler = (app) => {
   app.post("/chat/search", async (req, res) => {
     const authSession = getLoggedInAuthSession(req);
     if (
-      typeof req.query.term !== "string" ||
-      !(!req.query.page || typeof req.query.page === "string") ||
-      !(!req.query.limit || typeof req.query.limit === "string")
+      (req.query.term && typeof req.query.term !== "string") ||
+      (req.query.page && typeof req.query.page !== "string") ||
+      (req.query.limit && typeof req.query.limit !== "string")
     ) {
       throw new HttpError(
         "Only one parameter is allowed for term, page, and limit",

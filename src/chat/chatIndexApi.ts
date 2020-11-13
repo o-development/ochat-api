@@ -12,7 +12,9 @@ export async function createChatIndex(chat: IChat): Promise<IChat> {
     return chat;
   } catch (err) {
     if (err.meta?.statusCode === 409) {
-      throw new HttpError(`${chat.uri} already indexed`, 409);
+      throw new HttpError(`${chat.uri} already indexed`, 409, {
+        uri: chat.uri,
+      });
     }
     throw err;
   }

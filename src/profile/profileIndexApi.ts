@@ -12,7 +12,9 @@ export async function createProfileIndex(profile: IProfile): Promise<IProfile> {
     return profile;
   } catch (err) {
     if (err.meta?.statusCode === 409) {
-      throw new HttpError(`${profile.webId} already indexed`, 409);
+      throw new HttpError(`${profile.webId} already indexed`, 409, {
+        uri: profile.webId,
+      });
     }
     throw err;
   }
