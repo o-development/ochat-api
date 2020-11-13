@@ -6,7 +6,8 @@ export default abstract class AbstractExternalChatHandler {
   protected uri: string;
   protected chat: Partial<IChat>;
   // PageNumber: IMessage[]
-  protected messages: Record<number, IMessage[]>;
+  protected messagePages: Record<string, IMessage[]>;
+  protected messagePageOrder: string[];
   protected fetcher?: IFetcher;
 
   constructor(
@@ -19,15 +20,21 @@ export default abstract class AbstractExternalChatHandler {
   ) {
     this.uri = chatUrl;
     this.chat = { uri: chatUrl, type: chatType, ...options?.initialChat };
-    this.messages = {};
+    this.messagePages = {};
+    this.messagePageOrder = [];
     this.fetcher = options?.fetcher;
   }
 
-  protected setMessages(pageNumber: number, messages: IMessage[]): void {
-    if (pageNumber === 0) {
+  protected setMessages(
+    pageId: string,
+    messages: IMessage[],
+    isLatest?: boolean
+  ): void {
+    if (isLatest) {
       this.chat.lastMessage = messages[0];
     }
-    this.messages[pageNumber] = messages;
+    this.messagePages[pageId] = messages;
+    this.messagePageOrder = Object.keys(this.messagePages).sort().reverse();
   }
 
   async getChat(): Promise<IChat> {
@@ -61,11 +68,13 @@ export default abstract class AbstractExternalChatHandler {
 
   async fetchExternalChatMessagesIfNeeded(): Promise<void> {
     if (!this.chat.lastMessage) {
-      await this.fetchExternalChatMessages(0);
+      await this.fetchExternalChatMessages();
     }
   }
 
-  abstract async fetchExternalChatMessages(page: number): Promise<void>;
+  abstract async fetchExternalChatMessages(
+    previousPageId?: string
+  ): Promise<void>;
 
   abstract async addMessage(): Promise<void>;
 

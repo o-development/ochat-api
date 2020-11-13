@@ -54,6 +54,7 @@
     "@inrupt/solid-client": "^1.0.0",
     "@inrupt/solid-client-authn-browser": "^0.1.4",
     "@rdfjs/fetch": "^2.1.0",
+    "async-redis": "^1.1.7",
     "body-parser": "^1.19.0",
     "clownface": "^1.0.0",
     "cors": "^2.8.5",
@@ -65,7 +66,6 @@
     "node-fetch": "^2.6.1",
     "onesignal-node": "^3.2.0",
     "parse-link-header": "^1.0.1",
-    "redis": "^3.0.2",
     "typeorm": "^0.2.26",
     "url-parse": "^1.4.7"
   }

@@ -1,4 +1,4 @@
-import redis from "redis";
+import redis from "async-redis";
 
 const password = process.env.REDIS_PASSWORD;
 const port = parseInt(process.env.REDIS_PORT as string);

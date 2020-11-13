@@ -23,6 +23,7 @@ import { namedNode } from "@rdfjs/dataset";
 import fetchAcl from "../util/fetchAcl";
 import { Access } from "@inrupt/solid-client";
 import fetchExternalProfile from "../profile/externalProfile/fetchExternalProfile";
+import { redisClient } from "src/util/RedisConnection";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -64,7 +65,10 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async fetchExternalChatParticipants(): Promise<void> {
-    const agentAccess = await fetchAcl(this.getRootChatUri(), this.fetcher);
+    const agentAccess = await fetchAcl(
+      this.getContainerUri(this.uri),
+      this.fetcher
+    );
     this.chat.isPublic = this.hasAccess(agentAccess.public);
 
     const webIdsWithAccess = Object.keys(agentAccess)
@@ -100,52 +104,81 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     return containedNodes;
   }
 
-  private getRootChatUri() {
-    const rootChatUri = new URL(this.uri);
-    const splitPathname = rootChatUri.pathname.split("/");
+  private getContainerUri(uri: string) {
+    const containerUri = new URL(uri);
+    const splitPathname = containerUri.pathname.split("/");
     splitPathname[splitPathname.length - 1] = "";
-    rootChatUri.pathname = splitPathname.join("/");
-    rootChatUri.hash = "";
-    return rootChatUri.toString();
+    containerUri.pathname = splitPathname.join("/");
+    containerUri.hash = "";
+    return containerUri.toString();
   }
 
-  private async getLongChatMessageDocumentUrl(
-    pageNumber: number
-  ): Promise<string> {
-    const rootChatUri = new URL(this.uri);
-    const splitPathname = rootChatUri.pathname.split("/");
-    splitPathname[splitPathname.length - 1] = "";
-    rootChatUri.pathname = splitPathname.join("/");
-    rootChatUri.hash = "";
-    const yearNodes = await this.getContainedNodesFromContainer(
-      this.getRootChatUri()
-    );
-    let discoveredCounter = 0;
-    for (let y = 0; y < yearNodes.length; y++) {
+  private async getPageUrisAfterPageId(
+    minUris: number,
+    previousPageId?: string
+  ): Promise<string[]> {
+    // Get PageId year month and day
+    let pageIdYear: string | undefined;
+    let pageIdMonth: string | undefined;
+    let pageIdDay: string | undefined;
+    const rootContainer = this.getContainerUri(this.uri);
+    if (previousPageId) {
+      pageIdDay = this.getContainerUri(previousPageId);
+      pageIdMonth = this.getContainerUri(pageIdDay);
+      pageIdYear = this.getContainerUri(pageIdMonth);
+    }
+
+    let pageUris: string[] = [];
+    const yearNodes = await this.getContainedNodesFromContainer(rootContainer);
+    let completedFirstYearIteration = false;
+    for (
+      let y = pageIdYear ? yearNodes.indexOf(pageIdYear) : 0;
+      y < yearNodes.length;
+      y++
+    ) {
       const monthNodes = await this.getContainedNodesFromContainer(
         yearNodes[y]
       );
-      for (let m = 0; m < monthNodes.length; m++) {
+      for (
+        let m =
+          completedFirstYearIteration && pageIdMonth
+            ? monthNodes.indexOf(pageIdMonth)
+            : 0;
+        m < monthNodes.length;
+        m++
+      ) {
         const dayNodes = await this.getContainedNodesFromContainer(
           monthNodes[m]
         );
-        if (pageNumber > discoveredCounter + dayNodes.length - 1) {
-          discoveredCounter += dayNodes.length;
-        } else {
-          return `${dayNodes[pageNumber - discoveredCounter]}chat.ttl#this`;
+        pageUris = pageUris.concat(
+          dayNodes.map((dayNode) => `${dayNode}chat.ttl#this`)
+        );
+        if (dayNodes.length >= minUris) {
+          return pageUris;
         }
       }
+      completedFirstYearIteration = true;
     }
-    throw new HttpError(
-      `No long chat document exists for page ${pageNumber}`,
-      404
-    );
+    return pageUris;
   }
 
-  async fetchExternalChatMessages(page: number): Promise<void> {
+  private getRedisKey(chatUrl: string): string {
+    return `longChatIndex:${chatUrl}`;
+  }
+
+  private async getCachedPageUriAfterPageId(
+    previousPageId?: string
+  ): Promise<string> {
+    // const chats = await redisClient.get(this.getRedisKey(this.uri));
+    const uris = await this.getPageUrisAfterPageId(5, previousPageId);
+    console.log(uris);
+    throw new Error("not implemented");
+  }
+
+  async fetchExternalChatMessages(previousPageId?: string): Promise<void> {
     // Get the chat document
-    const chatMessageDocumentUrl = await this.getLongChatMessageDocumentUrl(
-      page
+    const chatMessageDocumentUrl = await this.getCachedPageUriAfterPageId(
+      previousPageId
     );
     const messageDataset = await fetchClownfaceDataset(
       chatMessageDocumentUrl,
@@ -163,7 +196,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
         return toIMessage(potentialMessage);
       }
     );
-    this.setMessages(page, messages);
+    this.setMessages(chatMessageDocumentUrl, messages);
   }
 
   addMessage(): Promise<void> {
