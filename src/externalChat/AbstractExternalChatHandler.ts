@@ -1,4 +1,4 @@
-import IFetcher from "src/util/IFetcher";
+import IFetcher from "../util/IFetcher";
 import IChat, { IChatType, toIChat } from "../chat/IChat";
 import IMessage from "../message/IMessage";
 

@@ -1,13 +1,16 @@
+import IFetcher from "../../util/IFetcher";
 import fetchClownface from "../../util/fetchClownFace";
 import { basicContainer, container, contains, rdfType } from "../../util/nodes";
+import getContainerUri from "../util/getContainerUri";
 
 async function getContainedUrisFromContainer(
-  containerUri: string
+  containerUri: string,
+  fetcher?: IFetcher
 ): Promise<string[]> {
   const containerNode = await fetchClownface(
     containerUri,
     [basicContainer, container],
-    this.fetcher
+    fetcher
   );
   const containedNodes = containerNode
     .out(contains)
@@ -28,7 +31,8 @@ async function getContainedUrisFromContainer(
 export default async function getLongChatMessageUris(
   chatUri: string,
   minUris: number,
-  previousPageId?: string
+  previousPageId?: string,
+  options?: { fetcher?: IFetcher }
 ): Promise<string[]> {
   // Get PageId year month and day
   let pageIdYear: string | undefined;
@@ -42,14 +46,20 @@ export default async function getLongChatMessageUris(
   }
 
   let pageUris: string[] = [];
-  const yearNodes = await getContainedUrisFromContainer(rootContainer);
+  const yearNodes = await getContainedUrisFromContainer(
+    rootContainer,
+    options?.fetcher
+  );
   let completedFirstYearIteration = false;
   for (
     let y = pageIdYear ? yearNodes.indexOf(pageIdYear) : 0;
     y < yearNodes.length;
     y++
   ) {
-    const monthNodes = await getContainedUrisFromContainer(yearNodes[y]);
+    const monthNodes = await getContainedUrisFromContainer(
+      yearNodes[y],
+      options?.fetcher
+    );
     for (
       let m =
         !completedFirstYearIteration && pageIdMonth
@@ -58,7 +68,10 @@ export default async function getLongChatMessageUris(
       m < monthNodes.length;
       m++
     ) {
-      const dayNodes = await getContainedUrisFromContainer(monthNodes[m]);
+      const dayNodes = await getContainedUrisFromContainer(
+        monthNodes[m],
+        options?.fetcher
+      );
       pageUris = pageUris.concat(
         dayNodes.map((dayNode) => `${dayNode}chat.ttl#this`)
       );
