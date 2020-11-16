@@ -1,7 +1,7 @@
 import { AnyPointer } from "clownface";
 import AbstractExternalChatHandler from "./AbstractExternalChatHandler";
 import { IChatType } from "../chat/IChat";
-import IFetcher from "src/util/IFetcher";
+import IFetcher from "../util/IFetcher";
 
 export default class ShortChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -28,7 +28,7 @@ export default class ShortChatExternalChatHandler extends AbstractExternalChatHa
     throw new Error("Method not implemented.");
   }
 
-  fetchExternalChatMessages(page: number): Promise<void> {
+  fetchExternalChatMessages(previousPageId?: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
 

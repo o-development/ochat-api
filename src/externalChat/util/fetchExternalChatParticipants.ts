@@ -19,7 +19,7 @@ export default async function fetchExternalChatParticipants(
   const webIdsWithAccess = Object.keys(agentAccess)
     .filter((key) => key !== "public")
     .filter((webId) => options.hasAccess(agentAccess[webId]));
-  const participants = [];
+  const participants: IChatParticipant[] = [];
   await Promise.all(
     webIdsWithAccess.map(async (webId) => {
       participants?.push({

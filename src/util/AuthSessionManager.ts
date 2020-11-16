@@ -1,5 +1,6 @@
 import { Session, SessionManager } from "@inrupt/solid-auth-fetcher";
-import { redisClient } from "./RedisConnection";
+import HttpError from "./HttpError";
+import redisClient from "./RedisConnection";
 
 const getKey = (key: string): string => {
   return `auth:${key}`;
@@ -11,38 +12,14 @@ const getAuthMapKey = (key: string): string => {
 
 export const sessionManager = new SessionManager({
   secureStorage: {
-    async get(key: string): Promise<string> {
-      return new Promise((resolve, reject) => {
-        redisClient.get(getKey(key), (err, value) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(value || undefined);
-          }
-        });
-      });
+    async get(key: string): Promise<string | undefined> {
+      return (await redisClient.get(getKey(key))) || undefined;
     },
     async set(key: string, value: string): Promise<void> {
-      return new Promise((resolve, reject) => {
-        redisClient.set(getKey(key), value, (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
+      await redisClient.set(getKey(key), value);
     },
     async delete(key: string): Promise<void> {
-      return new Promise((resolve, reject) => {
-        redisClient.del(getKey(key), (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
+      await redisClient.del(getKey(key));
     },
   },
 });
@@ -50,36 +27,24 @@ export const sessionManager = new SessionManager({
 export async function getSessionByWebId(
   webId: string
 ): Promise<Session | undefined> {
-  return new Promise((resolve, reject) => {
-    redisClient.get(getAuthMapKey(webId), async (err, sessionId) => {
-      if (err) {
-        reject(err);
-      } else if (!sessionId) {
-        resolve(undefined);
-      } else {
-        const session = await sessionManager.getSession(sessionId);
-        resolve(session);
-      }
-    });
-  });
+  const sessionId = await redisClient.get(getAuthMapKey(webId));
+  if (!sessionId) {
+    return undefined;
+  }
+  const session = await sessionManager.getSession(sessionId);
+  return session;
 }
 
 export async function setSessionByWebId(session: Session): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (!session.info.isLoggedIn || !session.info.webId) {
-      reject("Cannot save to auth map. Session is not logged in.");
-    } else {
-      redisClient.set(
-        getAuthMapKey(session.info.webId),
-        session.info.sessionId,
-        async (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        }
-      );
-    }
-  });
+  if (!session.info.isLoggedIn || !session.info.webId) {
+    throw new HttpError(
+      "Cannot save to auth map. Session is not logged in.",
+      401
+    );
+  } else {
+    await redisClient.set(
+      getAuthMapKey(session.info.webId),
+      session.info.sessionId
+    );
+  }
 }

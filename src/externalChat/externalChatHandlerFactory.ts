@@ -1,7 +1,7 @@
 import fetchClownface from "../util/fetchClownFace";
 import AbstractExternalChatHandler from "./AbstractExternalChatHandler";
 import { LongChat, rdfType, ShortChat } from "../util/nodes";
-import LongChatExternalChatHandler from "./LongChatExternalChatHandler";
+import LongChatExternalChatHandler from "./longChat/LongChatExternalChatHandler";
 import ShortChatExternalChatHandler from "./ShortChatExternalChatHandler";
 import IFetcher from "../util/IFetcher";
 import { IChatType } from "../chat/IChat";
