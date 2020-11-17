@@ -84,7 +84,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
         return toIMessage(potentialMessage);
       }
     );
-    this.setMessages(chatMessageDocumentUrl, messages);
+    this.setMessages(chatMessageDocumentUrl, messages, !previousPageId);
   }
 
   addMessage(): Promise<void> {
