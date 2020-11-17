@@ -22,12 +22,14 @@ export default async function fetchExternalChatParticipants(
   const participants: IChatParticipant[] = [];
   await Promise.all(
     webIdsWithAccess.map(async (webId) => {
+      const externalProfile = await fetchExternalProfile(webId, {
+        fetcher: options.fetcher,
+      });
       participants?.push({
         webId,
         isAdmin: options.isAdmin(agentAccess[webId]),
-        name:
-          (await fetchExternalProfile(webId, { fetcher: options.fetcher }))
-            .name || "",
+        name: externalProfile.name || "",
+        image: externalProfile.image,
       });
     })
   );

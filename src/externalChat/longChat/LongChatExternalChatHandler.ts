@@ -73,7 +73,10 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     const messageNodes = messageContainerNode.out(flowMessage);
     const messages: IMessage[] = messageNodes.map(
       (messageNode): IMessage => {
+        const nodeHash = new URL(messageNode.value).hash;
         const potentialMessage = {
+          id: nodeHash,
+          page: chatMessageDocumentUrl,
           maker: messageNode.out(maker).value,
           content: messageNode.out(content).value,
           timeCreated: messageNode.out(dateCreatedTerms).value,

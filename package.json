@@ -10,7 +10,8 @@
     "test": "jest",
     "postinstall": "npm run build",
     "configureEs": "ts-node src/helpers/configureEs.ts",
-    "clearEs": "ts-node src/helpers/clearEs.ts"
+    "clearEs": "ts-node src/helpers/clearEs.ts",
+    "clearRedis": "ts-node src/helpers/clearRedis.ts"
   },
   "repository": {
     "type": "git",

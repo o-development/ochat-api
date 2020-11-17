@@ -2,24 +2,24 @@ import { Session, SessionManager } from "@inrupt/solid-auth-fetcher";
 import HttpError from "./HttpError";
 import redisClient from "./RedisConnection";
 
-const getKey = (key: string): string => {
+export const getAuthKey = (key: string): string => {
   return `auth:${key}`;
 };
 
-const getAuthMapKey = (key: string): string => {
+export const getAuthMapKey = (key: string): string => {
   return `authMat:${key}`;
 };
 
 export const sessionManager = new SessionManager({
   secureStorage: {
     async get(key: string): Promise<string | undefined> {
-      return (await redisClient.get(getKey(key))) || undefined;
+      return (await redisClient.get(getAuthKey(key))) || undefined;
     },
     async set(key: string, value: string): Promise<void> {
-      await redisClient.set(getKey(key), value);
+      await redisClient.set(getAuthKey(key), value);
     },
     async delete(key: string): Promise<void> {
-      await redisClient.del(getKey(key));
+      await redisClient.del(getAuthKey(key));
     },
   },
 });

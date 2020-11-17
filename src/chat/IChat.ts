@@ -10,6 +10,7 @@ export enum IChatType {
 export interface IChatParticipant {
   name: string;
   webId: string;
+  image?: string;
   isAdmin: boolean;
 }
 
@@ -40,6 +41,7 @@ export const IChatPartialSchema: Schema = {
         properties: {
           name: { type: "string" },
           webId: { type: "string", format: "uri" },
+          image: { type: "string", format: "uri" },
           isAdmin: { type: "boolean" },
         },
       },
