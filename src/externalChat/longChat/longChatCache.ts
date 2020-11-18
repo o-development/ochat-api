@@ -8,11 +8,9 @@ export function getLongChatKey(chatUrl: string): string {
   return `longChatIndex:${chatUrl}`;
 }
 
-export async function getLongChatMessageUriFromCache(
-  chatUri: string,
-  previousPageId?: string,
-  options?: { fetcher?: IFetcher }
-): Promise<string> {
+export async function getCachedUriList(
+  chatUri: string
+): Promise<string[] | undefined> {
   const chatUriString: string | null = await redisClient.get(
     getLongChatKey(chatUri)
   );
@@ -30,6 +28,15 @@ export async function getLongChatMessageUriFromCache(
       // do nothing
     }
   }
+  return storedChatUris;
+}
+
+export async function getLongChatMessageUriFromCache(
+  chatUri: string,
+  previousPageId?: string,
+  options?: { fetcher?: IFetcher }
+): Promise<string> {
+  let storedChatUris: string[] | undefined = await getCachedUriList(chatUri);
 
   if (!storedChatUris) {
     // Update the Cache
@@ -58,5 +65,25 @@ export async function getLongChatMessageUriFromCache(
     `Could not find the chat after page ${previousPageId}`,
     404,
     { chatUri, previousPageId }
+  );
+}
+
+export async function isInCache(
+  chatUri: string,
+  pageUri: string
+): Promise<boolean> {
+  const uriList = await getCachedUriList(chatUri);
+  return uriList ? uriList.includes(pageUri) : false;
+}
+
+export async function addToCache(
+  chatUri: string,
+  pageUri: string
+): Promise<void> {
+  const uriList = (await getCachedUriList(chatUri)) || [];
+  uriList.push(pageUri);
+  await redisClient.set(
+    chatUri,
+    JSON.stringify([...new Set(uriList)].sort().reverse())
   );
 }

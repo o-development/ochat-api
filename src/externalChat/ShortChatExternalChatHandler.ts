@@ -33,7 +33,7 @@ export default class ShortChatExternalChatHandler extends AbstractExternalChatHa
     throw new Error("Method not implemented.");
   }
 
-  addMessage(): Promise<void> {
+  addMessage(message: IMessage): Promise<IMessage> {
     throw new Error("Method not implemented.");
   }
 

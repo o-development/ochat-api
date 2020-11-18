@@ -1,4 +1,4 @@
-import IFetcher from "../util/IFetcher";
+import IFetcher, { guaranteeFetcher } from "../util/IFetcher";
 import IChat, { IChatType, toIChat } from "../chat/IChat";
 import IMessage from "../message/IMessage";
 
@@ -8,7 +8,7 @@ export default abstract class AbstractExternalChatHandler {
   // PageNumber: IMessage[]
   protected messagePages: Record<string, IMessage[]>;
   protected messagePageOrder: string[];
-  protected fetcher?: IFetcher;
+  protected fetcher: IFetcher;
 
   constructor(
     chatUrl: string,
@@ -22,7 +22,7 @@ export default abstract class AbstractExternalChatHandler {
     this.chat = { uri: chatUrl, type: chatType, ...options?.initialChat };
     this.messagePages = {};
     this.messagePageOrder = [];
-    this.fetcher = options?.fetcher;
+    this.fetcher = guaranteeFetcher(options?.fetcher);
   }
 
   protected setMessages(
@@ -80,7 +80,7 @@ export default abstract class AbstractExternalChatHandler {
     previousPageId?: string
   ): Promise<IMessage[]>;
 
-  abstract async addMessage(): Promise<void>;
+  abstract async addMessage(message: IMessage): Promise<IMessage>;
 
   abstract async updateExternalChat(): Promise<void>;
 

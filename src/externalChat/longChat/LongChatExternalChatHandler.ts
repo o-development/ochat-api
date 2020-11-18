@@ -17,7 +17,8 @@ import IFetcher from "../../util/IFetcher";
 import IMessage, { toIMessage } from "../../message/IMessage";
 import { namedNode } from "@rdfjs/dataset";
 import fetchExternalChatParticipants from "../util/fetchExternalChatParticipants";
-import { getLongChatMessageUriFromCache } from "./LongChatCache";
+import { getLongChatMessageUriFromCache, isInCache } from "./LongChatCache";
+import getContainerUri from "../util/getContainerUri";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -77,7 +78,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
       (messageNode): IMessage => {
         const nodeHash = new URL(messageNode.value).hash;
         const potentialMessage = {
-          id: nodeHash,
+          id: nodeHash.substring(1),
           page: chatMessageDocumentUrl,
           maker: messageNode.out(maker).value,
           content: messageNode.out(content).value,
@@ -90,8 +91,23 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     return messages;
   }
 
-  addMessage(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async addMessage(message: IMessage): Promise<IMessage> {
+    // Construct chat.ttl uri from the date
+    const date = new Date(message.timeCreated);
+    const rootUri = getContainerUri(this.uri);
+    const messagePageUri = `${rootUri}${date.getFullYear()}/${
+      date.getMonth() + 1
+    }/${date.getDate()}/chat.ttl#this`;
+    // Check to see if chat.ttl uri is in cache
+    if (await isInCache(this.uri, messagePageUri)) {
+      // If yes, send a patch to add the message
+      console.log("in cache");
+    } else {
+      // If not, create it and put message in
+      // Save created uri to cache
+      console.log("not in cache");
+    }
+    throw new Error("Not Implemented");
   }
 
   updateExternalChat(): Promise<void> {
