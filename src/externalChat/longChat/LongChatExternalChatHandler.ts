@@ -56,7 +56,9 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     this.chat.participants = participantsResult.participants;
   }
 
-  async fetchExternalChatMessages(previousPageId?: string): Promise<void> {
+  async fetchExternalChatMessages(
+    previousPageId?: string
+  ): Promise<IMessage[]> {
     // Get the chat document
     const chatMessageDocumentUrl = await getLongChatMessageUriFromCache(
       this.uri,
@@ -85,6 +87,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
       }
     );
     this.setMessages(chatMessageDocumentUrl, messages, !previousPageId);
+    return messages;
   }
 
   addMessage(): Promise<void> {

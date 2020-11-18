@@ -46,6 +46,10 @@ export default abstract class AbstractExternalChatHandler {
     return toIChat(this.chat);
   }
 
+  async getMessages(previousPageId?: string): Promise<IMessage[]> {
+    return await this.fetchExternalChatMessages(previousPageId);
+  }
+
   getCurrentChat(): Partial<IChat> {
     return this.chat;
   }
@@ -74,7 +78,7 @@ export default abstract class AbstractExternalChatHandler {
 
   abstract async fetchExternalChatMessages(
     previousPageId?: string
-  ): Promise<void>;
+  ): Promise<IMessage[]>;
 
   abstract async addMessage(): Promise<void>;
 

@@ -7,7 +7,7 @@ import IFetcher from "../util/IFetcher";
 import { IChatType } from "../chat/IChat";
 import HttpError from "../util/HttpError";
 
-export default async function externalChatHanderFactor(
+export default async function externalChatHanderFactory(
   url: string,
   chatType?: IChatType,
   options?: { fetcher?: IFetcher }

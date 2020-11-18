@@ -1,7 +1,7 @@
 import redisClient from "../../util/RedisConnection";
 import IFetcher from "../../util/IFetcher";
 import validateSchema from "../../util/validateSchema";
-import getLongChatMessageUris from "./getLongChatMessageUris";
+import catchUpLongChatMessageUris from "./catchUpLongChatMessageUris";
 import HttpError from "../../util/HttpError";
 
 export function getLongChatKey(chatUrl: string): string {
@@ -16,7 +16,7 @@ export async function getLongChatMessageUriFromCache(
   const chatUriString: string | null = await redisClient.get(
     getLongChatKey(chatUri)
   );
-  let storedChatUris: string[] = [];
+  let storedChatUris: string[] | undefined = undefined;
   // Check to see if the value saved in Redis is valid
   if (chatUriString) {
     try {
@@ -31,44 +31,32 @@ export async function getLongChatMessageUriFromCache(
     }
   }
 
-  let foundUri: string | undefined = undefined;
-  let err: Error | undefined = undefined;
-  while (!foundUri && !err) {
-    // Check to see if our deired chat is in the list
+  if (!storedChatUris) {
+    // Update the Cache
+    storedChatUris = await catchUpLongChatMessageUris(chatUri, undefined, {
+      fetcher: options?.fetcher,
+    });
+    await redisClient.set(
+      getLongChatKey(chatUri),
+      JSON.stringify(storedChatUris)
+    );
+  }
+
+  // Get the right chat URI
+  if (storedChatUris) {
     if (!previousPageId && storedChatUris[0]) {
-      foundUri = storedChatUris[0];
+      return storedChatUris[0];
     } else if (
       previousPageId &&
-      storedChatUris.indexOf(previousPageId) &&
+      storedChatUris.indexOf(previousPageId) !== -1 &&
       storedChatUris[storedChatUris.indexOf(previousPageId) + 1]
     ) {
-      foundUri = storedChatUris[storedChatUris.indexOf(previousPageId) + 1];
-    }
-    if (!foundUri) {
-      // Fetch the next pages
-      const MIN_PAGES_TO_FETCH = 5;
-      const newUris = await getLongChatMessageUris(
-        chatUri,
-        MIN_PAGES_TO_FETCH,
-        storedChatUris[storedChatUris.length - 1],
-        { fetcher: options?.fetcher }
-      );
-      storedChatUris = [...new Set(storedChatUris.concat(newUris))]
-        .sort()
-        .reverse();
-      if (newUris.length < MIN_PAGES_TO_FETCH) {
-        err = new HttpError("No more chats exist", 404, {
-          previousPageId: previousPageId,
-        });
-      }
+      return storedChatUris[storedChatUris.indexOf(previousPageId) + 1];
     }
   }
-  await redisClient.set(
-    getLongChatKey(chatUri),
-    JSON.stringify(storedChatUris)
+  throw new HttpError(
+    `Could not find the chat after page ${previousPageId}`,
+    404,
+    { chatUri, previousPageId }
   );
-  if (err || !foundUri) {
-    throw err || new Error("Uri not found");
-  }
-  return foundUri;
 }
