@@ -31,6 +31,25 @@ export async function getCachedUriList(
   return storedChatUris;
 }
 
+export async function catchUpUriCache(
+  chatUri: string,
+  options?: { fetcher?: IFetcher }
+): Promise<void> {
+  const storedChatUris: string[] = (await getCachedUriList(chatUri)) || [];
+  const mostRecentCachedUri = storedChatUris[0] || undefined;
+  const newUris = await catchUpLongChatMessageUris(
+    chatUri,
+    mostRecentCachedUri,
+    {
+      fetcher: options?.fetcher,
+    }
+  );
+  const newCache = [...new Set([...storedChatUris, ...newUris])]
+    .sort()
+    .reverse();
+  await redisClient.set(getLongChatKey(chatUri), JSON.stringify(newCache));
+}
+
 export async function getLongChatMessageUriFromCache(
   chatUri: string,
   previousPageId?: string,

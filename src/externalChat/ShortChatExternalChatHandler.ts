@@ -1,6 +1,6 @@
 import { AnyPointer } from "clownface";
 import AbstractExternalChatHandler from "./AbstractExternalChatHandler";
-import { IChatType } from "../chat/IChat";
+import IChat, { IChatType } from "../chat/IChat";
 import IFetcher from "../util/IFetcher";
 import IMessage from "src/message/IMessage";
 
@@ -42,6 +42,22 @@ export default class ShortChatExternalChatHandler extends AbstractExternalChatHa
   }
 
   updateExternalChatParticipants(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  onNewMessage(
+    callback: (chatUri: string, message: IMessage) => Promise<void>
+  ): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  onChatUpdate(
+    callback: (chat: Partial<IChat> & { uri: string }) => Promise<void>
+  ): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  runStartupTask(): Promise<void> {
     throw new Error("Method not implemented.");
   }
 }

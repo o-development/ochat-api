@@ -1,6 +1,6 @@
 import { AnyPointer } from "clownface";
 import AbstractExternalChatHandler from "../AbstractExternalChatHandler";
-import { IChatType } from "../../chat/IChat";
+import IChat, { IChatType } from "../../chat/IChat";
 import {
   content,
   dateCreatedTerms,
@@ -23,11 +23,11 @@ import { namedNode, literal } from "@rdfjs/dataset";
 import fetchExternalChatParticipants from "../util/fetchExternalChatParticipants";
 import {
   addToCache,
+  catchUpUriCache,
   getLongChatMessageUriFromCache,
-  isInCache,
 } from "./LongChatCache";
 import getContainerUri from "../util/getContainerUri";
-import HttpError from "../../util/HttpError";
+import { subscribeToUri } from "../../util/SolidWebSocketManager";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -134,5 +134,26 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
 
   updateExternalChatParticipants(): Promise<void> {
     throw new Error("Method not implemented.");
+  }
+
+  async onNewMessage(
+    callback: (chatUri: string, message: IMessage) => void
+  ): Promise<void> {
+    await subscribeToUri(
+      "https://jackson.solidcommunity.net/public/AnotherLongChat/2020/11/19/chat.ttl",
+      (uriUpdate) => {
+        console.log(uriUpdate);
+      }
+    );
+  }
+
+  async onChatUpdate(
+    callback: (chat: Partial<IChat> & { uri: string }) => void
+  ): Promise<void> {
+    console.log("Called onChatUpdate");
+  }
+
+  async runStartupTask(): Promise<void> {
+    await catchUpUriCache(this.uri, { fetcher: this.fetcher });
   }
 }
