@@ -49,3 +49,8 @@ export const contains = namedNode("http://www.w3.org/ns/ldp#contains");
 export const flowMessage = namedNode(
   "http://www.w3.org/2005/01/wf/flow#message"
 );
+
+// Literal Types
+export const xslDateTime = namedNode(
+  "http://www.w3.org/2001/XMLSchema#dateTime"
+);

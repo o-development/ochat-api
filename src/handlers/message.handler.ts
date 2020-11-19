@@ -2,7 +2,7 @@ import toUri from "../util/toUri";
 import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import IHandler from "./IHandler";
 import getChatMessages from "../message/getChatMessages";
-import IMessage, { toIMessage } from "../message/IMessage";
+import { toIMessage } from "../message/IMessage";
 import createChatMessage from "../message/createChatMessage";
 
 const messageHandler: IHandler = (app) => {
@@ -30,7 +30,7 @@ const messageHandler: IHandler = (app) => {
       fetcher: authSession.fetch.bind(authSession),
       webId: authSession.info.webId,
     });
-    res.status(200).send(createdMessage);
+    res.status(201).send(createdMessage);
   });
 };
 

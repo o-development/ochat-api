@@ -63,6 +63,7 @@
     "express-session": "^1.17.1",
     "ioredis": "^4.19.2",
     "jsonschema": "^1.4.0",
+    "n3": "^1.6.4",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.1",
     "onesignal-node": "^3.2.0",

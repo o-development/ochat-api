@@ -3,12 +3,13 @@ import { NamedNode } from "rdf-js";
 import { dataset as Dataset, namedNode } from "@rdfjs/dataset";
 import ParserN3 from "@rdfjs/parser-n3";
 import { Readable } from "stream";
-import IFetcher from "../util/IFetcher";
+import IFetcher, { guaranteeFetcher } from "../util/IFetcher";
 import nodeFetch from "node-fetch";
 import DatasetCore from "@rdfjs/dataset/DatasetCore";
 import { rdfType } from "./nodes";
 import HttpError from "./HttpError";
 import Clownface from "clownface/lib/Clownface";
+import { Writer } from "n3";
 
 export async function fetchClownfaceDataset(
   url: string,
@@ -53,7 +54,7 @@ export async function fetchClownfaceDataset(
   return cfDataset;
 }
 
-export default async function fetchClownface(
+export async function fetchClownfaceNode(
   url: string,
   types: NamedNode[],
   fetcher?: IFetcher,
@@ -96,4 +97,38 @@ export default async function fetchClownface(
   }
 
   return node;
+}
+
+export function getBlankClownfaceDataset(): Clownface {
+  return cf({ dataset: Dataset() });
+}
+
+export async function patchClownfaceDataset(
+  uri: string,
+  cfDataset: Clownface,
+  fetcher?: IFetcher
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const writer = new Writer({ format: "N-Triples" });
+    for (const quad of cfDataset.dataset) {
+      writer.addQuad(quad);
+    }
+    writer.end(async (error, parsedString: string) => {
+      if (error) {
+        reject(error);
+      }
+      const trueFetcher = guaranteeFetcher(fetcher);
+      const response = await trueFetcher(uri, {
+        method: "PATCH",
+        body: `INSERT DATA { ${parsedString} }`,
+        headers: {
+          "content-type": "application/sparql-update",
+        },
+      });
+      if (response.status !== 200) {
+        reject(new HttpError(`Could not write to pod at ${uri}`, 500));
+      }
+      resolve();
+    });
+  });
 }

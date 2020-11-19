@@ -9,16 +9,25 @@ import {
   LongChat,
   maker,
   title,
+  xslDateTime,
 } from "../../util/nodes";
-import fetchClownface, {
+import {
+  fetchClownfaceNode,
   fetchClownfaceDataset,
-} from "../../util/fetchClownFace";
+  getBlankClownfaceDataset,
+  patchClownfaceDataset,
+} from "../../util/clownFaceUtils";
 import IFetcher from "../../util/IFetcher";
 import IMessage, { toIMessage } from "../../message/IMessage";
-import { namedNode } from "@rdfjs/dataset";
+import { namedNode, literal } from "@rdfjs/dataset";
 import fetchExternalChatParticipants from "../util/fetchExternalChatParticipants";
-import { getLongChatMessageUriFromCache, isInCache } from "./LongChatCache";
+import {
+  addToCache,
+  getLongChatMessageUriFromCache,
+  isInCache,
+} from "./LongChatCache";
 import getContainerUri from "../util/getContainerUri";
+import HttpError from "../../util/HttpError";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -42,7 +51,11 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async fetchExternalChat(): Promise<void> {
-    const chatNode = await fetchClownface(this.uri, [LongChat], this.fetcher);
+    const chatNode = await fetchClownfaceNode(
+      this.uri,
+      [LongChat],
+      this.fetcher
+    );
     this.processClownfaceChatNode(chatNode);
   }
 
@@ -97,17 +110,22 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     const rootUri = getContainerUri(this.uri);
     const messagePageUri = `${rootUri}${date.getFullYear()}/${
       date.getMonth() + 1
-    }/${date.getDate()}/chat.ttl#this`;
-    // Check to see if chat.ttl uri is in cache
-    if (await isInCache(this.uri, messagePageUri)) {
-      // If yes, send a patch to add the message
-      console.log("in cache");
-    } else {
-      // If not, create it and put message in
-      // Save created uri to cache
-      console.log("not in cache");
-    }
-    throw new Error("Not Implemented");
+    }/${date.getDate()}/chat.ttl`;
+    const messageUri = `${messagePageUri}#${message.id}`;
+
+    // Patch the file to add message
+    const ds = getBlankClownfaceDataset();
+    ds.namedNode(messageUri)
+      .addOut(maker, namedNode(message.maker))
+      .addOut(content, literal(message.content))
+      .addOut(dateCreatedTerms, literal(message.timeCreated, xslDateTime))
+      .addIn(flowMessage, namedNode(this.uri));
+    await patchClownfaceDataset(messagePageUri, ds, this.fetcher);
+    await addToCache(this.uri, messagePageUri);
+    return {
+      ...message,
+      page: messagePageUri,
+    };
   }
 
   updateExternalChat(): Promise<void> {

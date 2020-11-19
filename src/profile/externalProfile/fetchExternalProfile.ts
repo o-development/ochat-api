@@ -1,4 +1,4 @@
-import fetchClownFace from "../../util/fetchClownFace";
+import { fetchClownfaceNode } from "../../util/clownFaceUtils";
 import IFetcher from "../../util/IFetcher";
 import Profile from "../IProfile";
 import {
@@ -19,7 +19,7 @@ export default async function fetchExternalProfile(
 ): Promise<Profile> {
   // Fetch the given URL
   try {
-    const profileNode = await fetchClownFace(
+    const profileNode = await fetchClownfaceNode(
       url,
       [SchemaPerson, FoafPerson],
       options.fetcher,

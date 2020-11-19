@@ -2,6 +2,7 @@ import externalChatHanderFactory from "../externalChat/externalChatHandlerFactor
 import HttpError from "../util/HttpError";
 import IFetcher from "../util/IFetcher";
 import IMessage from "./IMessage";
+import onNewChatMessage from "./onNewChatMessage";
 
 export default async function createNewChatMessage(
   chatUri: string,
@@ -11,10 +12,18 @@ export default async function createNewChatMessage(
   if (message.maker !== options.webId) {
     throw new HttpError("Cannot create a message with a different user.", 400);
   }
-  const externalChatHandler = await externalChatHanderFactory(
-    chatUri,
-    undefined,
-    { fetcher: options.fetcher }
-  );
-  return await externalChatHandler.addMessage(message);
+  const [savedMessage] = await Promise.all([
+    (async () => {
+      const externalChatHandler = await externalChatHanderFactory(
+        chatUri,
+        undefined,
+        { fetcher: options.fetcher }
+      );
+      return await externalChatHandler.addMessage(message);
+    })(),
+    (async () => {
+      await onNewChatMessage(chatUri, message);
+    })(),
+  ]);
+  return savedMessage;
 }

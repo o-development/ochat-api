@@ -1,5 +1,5 @@
 import IFetcher from "../../util/IFetcher";
-import fetchClownface from "../../util/fetchClownFace";
+import { fetchClownfaceNode } from "../../util/clownFaceUtils";
 import { basicContainer, container, contains, rdfType } from "../../util/nodes";
 import getContainerUri from "../util/getContainerUri";
 import HttpError from "../../util/HttpError";
@@ -8,7 +8,7 @@ async function getContainedUrisFromContainer(
   containerUri: string,
   fetcher?: IFetcher
 ): Promise<string[]> {
-  const containerNode = await fetchClownface(
+  const containerNode = await fetchClownfaceNode(
     containerUri,
     [basicContainer, container],
     fetcher
@@ -98,7 +98,7 @@ export default async function catchUpLongChatMessageUris(
                     monthNode !== pageIdMonth ||
                     dayNode > pageIdDay
                 )
-                .forEach((dayNode) => pageUris.push(`${dayNode}chat.ttl#this`));
+                .forEach((dayNode) => pageUris.push(`${dayNode}chat.ttl`));
             })
         );
       })

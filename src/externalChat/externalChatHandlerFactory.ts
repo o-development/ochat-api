@@ -1,4 +1,4 @@
-import fetchClownface from "../util/fetchClownFace";
+import { fetchClownfaceNode } from "../util/clownFaceUtils";
 import AbstractExternalChatHandler from "./AbstractExternalChatHandler";
 import { LongChat, rdfType, ShortChat } from "../util/nodes";
 import LongChatExternalChatHandler from "./longChat/LongChatExternalChatHandler";
@@ -32,7 +32,7 @@ export default async function externalChatHanderFactory(
     }
   }
 
-  const chatNode = await fetchClownface(
+  const chatNode = await fetchClownfaceNode(
     uri,
     [LongChat, ShortChat],
     options?.fetcher

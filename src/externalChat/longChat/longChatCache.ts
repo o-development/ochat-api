@@ -83,7 +83,7 @@ export async function addToCache(
   const uriList = (await getCachedUriList(chatUri)) || [];
   uriList.push(pageUri);
   await redisClient.set(
-    chatUri,
+    getLongChatKey(chatUri),
     JSON.stringify([...new Set(uriList)].sort().reverse())
   );
 }
