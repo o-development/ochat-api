@@ -28,7 +28,7 @@ const runAllChatStartupTasks: IStartupJob = async () => {
       { fetcher }
     );
     // Run Startup Task
-    // await externalChatHandler.runStartupTask();
+    await externalChatHandler.runStartupTask();
     // Register Chat Listeners
     await registerChatListeners(chat.uri, {
       optionalExternalChatHandler: externalChatHandler,

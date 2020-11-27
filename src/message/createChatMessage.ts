@@ -2,7 +2,7 @@ import externalChatHanderFactory from "../externalChat/externalChatHandlerFactor
 import HttpError from "../util/HttpError";
 import IFetcher from "../util/IFetcher";
 import IMessage from "./IMessage";
-import onNewChatMessage from "./onNewChatMessage";
+import onNewChatMessages from "./onNewChatMessages";
 
 export default async function createNewChatMessage(
   chatUri: string,
@@ -22,7 +22,7 @@ export default async function createNewChatMessage(
       return await externalChatHandler.addMessage(message);
     })(),
     (async () => {
-      await onNewChatMessage(chatUri, message);
+      await onNewChatMessages(chatUri, [message]);
     })(),
   ]);
   return savedMessage;

@@ -1,6 +1,6 @@
 import HttpError from "../util/HttpError";
 import EsClient from "../util/EsClient";
-import IChat from "./IChat";
+import IChat, { toIChat } from "./IChat";
 
 export async function createChatIndex(chat: IChat): Promise<IChat> {
   try {
@@ -20,8 +20,9 @@ export async function createChatIndex(chat: IChat): Promise<IChat> {
   }
 }
 
-export function retrieveChatIndex(chatUri: string): Promise<IChat> {
-  throw new Error("Not Implemented");
+export async function retrieveChatIndex(chatUri: string): Promise<IChat> {
+  const chat = await EsClient.get({ index: "chat", id: chatUri });
+  return toIChat(chat.body._source);
 }
 
 export function updateChatIndex(chat: Partial<IChat>): Promise<IChat> {

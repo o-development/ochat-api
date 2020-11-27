@@ -1,6 +1,6 @@
 import AbstractExternalChatHandler from "../externalChat/AbstractExternalChatHandler";
 import externalChatHandlerFactory from "../externalChat/externalChatHandlerFactory";
-import onNewChatMessage from "../message/onNewChatMessage";
+import onNewChatMessages from "../message/onNewChatMessages";
 import IFetcher from "../util/IFetcher";
 import { IChatType } from "./IChat";
 import onChatUpdate from "./onChatUpdate";
@@ -22,7 +22,7 @@ export default async function registerChatListeners(
     externalChatHandler = options.optionalExternalChatHandler;
   }
   await Promise.all([
-    externalChatHandler.onNewMessage(onNewChatMessage),
+    externalChatHandler.onNewMessages(onNewChatMessages),
     externalChatHandler.onChatUpdate(onChatUpdate),
   ]);
 }

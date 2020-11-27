@@ -10,7 +10,7 @@ const authenticationHandler: IHandler = (app) => {
     "/auth",
     session({
       secret: "I let Kevin's son beat me in foosball",
-      cookie: { secure: false },
+      cookie: { secure: true },
     })
   );
 

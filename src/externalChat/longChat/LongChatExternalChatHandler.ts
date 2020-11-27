@@ -13,21 +13,17 @@ import {
 } from "../../util/nodes";
 import {
   fetchClownfaceNode,
-  fetchClownfaceDataset,
   getBlankClownfaceDataset,
   patchClownfaceDataset,
 } from "../../util/clownFaceUtils";
 import IFetcher from "../../util/IFetcher";
-import IMessage, { toIMessage } from "../../message/IMessage";
+import IMessage from "../../message/IMessage";
 import { namedNode, literal } from "@rdfjs/dataset";
 import fetchExternalChatParticipants from "../util/fetchExternalChatParticipants";
-import {
-  addToCache,
-  catchUpUriCache,
-  getLongChatMessageUriFromCache,
-} from "./LongChatCache";
+import { addToCache, getLongChatMessageUriFromCache } from "./LongChatCache";
 import getContainerUri from "../util/getContainerUri";
-import { subscribeToUri } from "../../util/SolidWebSocketManager";
+import longChatWebsocketHandler from "./LongChatWebsocketHandler";
+import fetchExternalLongChatMessages from "./fetchExternalLongChatMessages";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -81,23 +77,11 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
         fetcher: this.fetcher,
       }
     );
-    const messageDataset = await fetchClownfaceDataset(
+    const messages = await fetchExternalLongChatMessages(
+      this.uri,
       chatMessageDocumentUrl,
-      this.fetcher
-    );
-    const messageContainerNode = messageDataset.node(namedNode(this.uri));
-    const messageNodes = messageContainerNode.out(flowMessage);
-    const messages: IMessage[] = messageNodes.map(
-      (messageNode): IMessage => {
-        const nodeHash = new URL(messageNode.value).hash;
-        const potentialMessage = {
-          id: nodeHash.substring(1),
-          page: chatMessageDocumentUrl,
-          maker: messageNode.out(maker).value,
-          content: messageNode.out(content).value,
-          timeCreated: messageNode.out(dateCreatedTerms).value,
-        };
-        return toIMessage(potentialMessage);
+      {
+        fetcher: this.fetcher,
       }
     );
     this.setMessages(chatMessageDocumentUrl, messages, !previousPageId);
@@ -136,24 +120,21 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     throw new Error("Method not implemented.");
   }
 
-  async onNewMessage(
-    callback: (chatUri: string, message: IMessage) => void
+  async onNewMessages(
+    callback: (chatUri: string, messages: IMessage[]) => void
   ): Promise<void> {
-    await subscribeToUri(
-      "https://jackson.solidcommunity.net/public/AnotherLongChat/2020/11/19/chat.ttl",
-      (uriUpdate) => {
-        console.log(uriUpdate);
-      }
-    );
+    longChatWebsocketHandler.onNewMessage(this.uri, callback);
   }
 
   async onChatUpdate(
     callback: (chat: Partial<IChat> & { uri: string }) => void
   ): Promise<void> {
-    console.log("Called onChatUpdate");
+    longChatWebsocketHandler.onChatUpdate(this.uri, callback);
   }
 
   async runStartupTask(): Promise<void> {
-    await catchUpUriCache(this.uri, { fetcher: this.fetcher });
+    await longChatWebsocketHandler.beginListeningToChat(this.uri, undefined, {
+      fetcher: this.fetcher,
+    });
   }
 }

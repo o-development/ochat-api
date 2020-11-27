@@ -1,15 +1,19 @@
 import WebSocket from "ws";
 import IFetcher, { guaranteeFetcher } from "./IFetcher";
+import { EventEmitter } from "events";
 
 const globalSockets: Record<string, WebSocket> = {};
 
 const globalConnectingSockets: Record<string, Promise<void>> = {};
+
+const socketEventEmitter = new EventEmitter();
 
 export async function subscribeToUri(
   uri: string,
   callback: (uriUpdate: string) => void,
   options?: {
     fetcher?: IFetcher;
+    clearOtherSubscriptionsToThisUriFirst?: boolean;
   }
 ): Promise<void> {
   // Discover WebSocket URI
@@ -28,6 +32,7 @@ export async function subscribeToUri(
     }
     socket = globalSockets[webSocketUri];
   } else {
+    // Create a new WebSocket
     socket = new WebSocket(webSocketUri);
     globalSockets[webSocketUri] = socket;
     globalConnectingSockets[webSocketUri] = new Promise((resolve, reject) => {
@@ -37,6 +42,10 @@ export async function subscribeToUri(
         resolve();
       });
       socket.on("error", reject);
+    });
+    socket.on("message", (data: string) => {
+      const updatedUri = data.substr(4);
+      socketEventEmitter.emit(updatedUri, updatedUri);
     });
     await globalConnectingSockets[webSocketUri];
   }
@@ -55,9 +64,10 @@ export async function subscribeToUri(
   await awaitSubscribeToResource;
 
   // Setup callback
-  socket.on("message", (data) => {
-    if (data === `pub ${uri}`) {
-      callback(uri);
-    }
-  });
+  if (options?.clearOtherSubscriptionsToThisUriFirst) {
+    socketEventEmitter.removeAllListeners(uri);
+  } else {
+    socketEventEmitter.removeListener(uri, callback);
+  }
+  socketEventEmitter.on(uri, callback);
 }

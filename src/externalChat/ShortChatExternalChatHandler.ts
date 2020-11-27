@@ -45,8 +45,8 @@ export default class ShortChatExternalChatHandler extends AbstractExternalChatHa
     throw new Error("Method not implemented.");
   }
 
-  onNewMessage(
-    callback: (chatUri: string, message: IMessage) => Promise<void>
+  onNewMessages(
+    callback: (chatUri: string, messages: IMessage[]) => Promise<void>
   ): Promise<void> {
     throw new Error("Method not implemented.");
   }

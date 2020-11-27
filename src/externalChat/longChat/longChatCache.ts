@@ -34,7 +34,7 @@ export async function getCachedUriList(
 export async function catchUpUriCache(
   chatUri: string,
   options?: { fetcher?: IFetcher }
-): Promise<void> {
+): Promise<string[]> {
   const storedChatUris: string[] = (await getCachedUriList(chatUri)) || [];
   const mostRecentCachedUri = storedChatUris[0] || undefined;
   const newUris = await catchUpLongChatMessageUris(
@@ -48,6 +48,7 @@ export async function catchUpUriCache(
     .sort()
     .reverse();
   await redisClient.set(getLongChatKey(chatUri), JSON.stringify(newCache));
+  return newCache;
 }
 
 export async function getLongChatMessageUriFromCache(
