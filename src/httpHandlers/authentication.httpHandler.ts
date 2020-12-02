@@ -1,7 +1,13 @@
-import IHandler from "./IHandler";
+import IHttpHandler from "./IHttpHandler";
 import session from "express-session";
 import URL from "url-parse";
-import { sessionManager, setSessionByWebId } from "../util/AuthSessionManager";
+import {
+  removeAllSessionsByWebId,
+  sessionManager,
+  setSessionByWebId,
+} from "../util/AuthSessionManager";
+import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
+import { Request } from "express";
 
 const hostUrl = process.env.HOST_URL || "http://localhost:9000";
 const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:19006";
@@ -12,7 +18,11 @@ if (!sessionSecret) {
   throw new Error("SESSION_SECERET must be provided");
 }
 
-const authenticationHandler: IHandler = (app) => {
+function isFromWebClient(req: Request): boolean {
+  return !!req.session && new URL(req.session.redirect).origin === clientOrigin;
+}
+
+const authenticationHandler: IHttpHandler = (app) => {
   app.use(
     "/auth",
     session({
@@ -22,8 +32,6 @@ const authenticationHandler: IHandler = (app) => {
   );
 
   app.get("/auth/login", async (req, res) => {
-    console.log("LOGIN");
-    console.log(req.sessionID);
     const { redirect, issuer } = req.query;
 
     const session = await sessionManager.getSession(req.sessionID);
@@ -40,14 +48,11 @@ const authenticationHandler: IHandler = (app) => {
   });
 
   app.get("/auth/callback", async (req, res) => {
-    console.log("CALLBACK");
-    console.log(req.sessionID);
     await sessionManager.handleIncomingRedirect(req.url);
     const authSession = await sessionManager.getSession(req.sessionID);
-    console.log(authSession);
     await setSessionByWebId(authSession);
     if (req.session && req.session.redirect) {
-      if (new URL(req.session.redirect).origin === clientOrigin) {
+      if (isFromWebClient(req)) {
         // If the request is coming from the client, set a cookie
         res.cookie("auth", req.sessionID, { httpOnly: true });
         res.redirect(`${req.session.redirect}?webid=${authSession.info.webId}`);
@@ -73,6 +78,24 @@ const authenticationHandler: IHandler = (app) => {
       req.authSession = authSession;
     }
     next();
+  });
+
+  app.get("/auth/logout/device", async (req, res) => {
+    const authSession = getLoggedInAuthSession(req);
+    await Promise.all([
+      authSession.logout(),
+      setSessionByWebId(authSession, true),
+    ]);
+    res.status(204).send();
+  });
+
+  app.get("/auth/logout/all", async (req, res) => {
+    const authSession = getLoggedInAuthSession(req);
+    await Promise.all([
+      authSession.logout(),
+      removeAllSessionsByWebId(authSession.info.webId),
+    ]);
+    res.status(204).send();
   });
 };
 

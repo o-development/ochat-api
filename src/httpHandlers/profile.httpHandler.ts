@@ -1,10 +1,10 @@
-import IHandler from "./IHandler";
+import IHttpHandler from "./IHttpHandler";
 import indexProfile from "../profile/indexProfile";
 import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import { retrieveProfileIndex } from "../profile/profileIndexApi";
 import fetchAcl from "../util/fetchAcl";
 
-const profileHandler: IHandler = (app) => {
+const profileHandler: IHttpHandler = (app) => {
   app.get("/profile/authenticated", async (req, res) => {
     const authSession = getLoggedInAuthSession(req);
     const profile = await retrieveProfileIndex(authSession.info.webId);

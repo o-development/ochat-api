@@ -1,11 +1,11 @@
 import toUri from "../util/toUri";
 import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
-import IHandler from "./IHandler";
+import IHttpHandler from "./IHttpHandler";
 import getChatMessages from "../message/getChatMessages";
 import { toIMessage } from "../message/IMessage";
 import createChatMessage from "../message/createChatMessage";
 
-const messageHandler: IHandler = (app) => {
+const messageHandler: IHttpHandler = (app) => {
   app.get("/message/:chat_uri", async (req, res) => {
     const authSession = getLoggedInAuthSession(req);
     const chatUri = toUri(req.params.chat_uri);

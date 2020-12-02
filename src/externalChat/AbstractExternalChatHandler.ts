@@ -60,7 +60,7 @@ export default abstract class AbstractExternalChatHandler {
     }
   }
 
-  abstract async fetchExternalChat(): Promise<void>;
+  abstract fetchExternalChat(): Promise<void>;
 
   async fetchExternalChatParticipantsIfNeeded(): Promise<void> {
     if (!this.chat.participants || !this.chat.isPublic) {
@@ -68,7 +68,7 @@ export default abstract class AbstractExternalChatHandler {
     }
   }
 
-  abstract async fetchExternalChatParticipants(): Promise<void>;
+  abstract fetchExternalChatParticipants(): Promise<void>;
 
   async fetchExternalChatMessagesIfNeeded(): Promise<void> {
     if (!this.chat.lastMessage) {
@@ -76,23 +76,23 @@ export default abstract class AbstractExternalChatHandler {
     }
   }
 
-  abstract async fetchExternalChatMessages(
+  abstract fetchExternalChatMessages(
     previousPageId?: string
   ): Promise<IMessage[]>;
 
-  abstract async addMessage(message: IMessage): Promise<IMessage>;
+  abstract addMessage(message: IMessage): Promise<IMessage>;
 
-  abstract async updateExternalChat(): Promise<void>;
+  abstract updateExternalChat(): Promise<void>;
 
-  abstract async updateExternalChatParticipants(): Promise<void>;
+  abstract updateExternalChatParticipants(): Promise<void>;
 
-  abstract async onNewMessages(
+  abstract onNewMessages(
     callback: (chatUri: string, messages: IMessage[]) => Promise<void>
   ): Promise<void>;
 
-  abstract async onChatUpdate(
+  abstract onChatUpdate(
     callback: (chat: Partial<IChat> & { uri: string }) => Promise<void>
   ): Promise<void>;
 
-  abstract async runStartupTask(): Promise<void>;
+  abstract runStartupTask(): Promise<void>;
 }

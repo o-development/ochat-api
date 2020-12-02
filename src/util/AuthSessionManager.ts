@@ -24,10 +24,20 @@ export const sessionManager = new SessionManager({
   },
 });
 
+/**
+ * Session Map
+ */
+
+async function getSessionSet(webId: string): Promise<Set<string>> {
+  const curSessions = await redisClient.get(getAuthMapKey(webId));
+  return curSessions ? new Set(JSON.parse(curSessions)) : new Set();
+}
+
 export async function getSessionByWebId(
   webId: string
 ): Promise<Session | undefined> {
-  const sessionId = await redisClient.get(getAuthMapKey(webId));
+  const sessionSet = await getSessionSet(webId);
+  const sessionId = sessionSet.values().next().value;
   if (!sessionId) {
     return undefined;
   }
@@ -35,16 +45,29 @@ export async function getSessionByWebId(
   return session;
 }
 
-export async function setSessionByWebId(session: Session): Promise<void> {
+export async function setSessionByWebId(
+  session: Session,
+  shouldRemove?: boolean
+): Promise<void> {
   if (!session.info.isLoggedIn || !session.info.webId) {
     throw new HttpError(
       "Cannot save to auth map. Session is not logged in.",
       401
     );
   } else {
+    const sessionSet = await getSessionSet(session.info.webId);
+    if (!shouldRemove) {
+      sessionSet.add(session.info.sessionId);
+    } else {
+      sessionSet.delete(session.info.sessionId);
+    }
     await redisClient.set(
       getAuthMapKey(session.info.webId),
-      session.info.sessionId
+      JSON.stringify(Array.from(sessionSet))
     );
   }
+}
+
+export async function removeAllSessionsByWebId(webId: string): Promise<void> {
+  await redisClient.del(getAuthMapKey(webId));
 }

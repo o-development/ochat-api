@@ -1,4 +1,4 @@
-import IHandler from "./IHandler";
+import IHttpHandler from "./IHttpHandler";
 import { toIChat, toIChatPartial } from "../chat/IChat";
 import newChat from "../chat/newChat";
 import HttpError from "../util/HttpError";
@@ -9,7 +9,7 @@ import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import newChatIndex from "../chat/newChatIndex";
 import updateChatIndex from "../chat/updateChatIndex";
 
-const chatHandler: IHandler = (app) => {
+const chatHandler: IHttpHandler = (app) => {
   // New Chat
   app.post("/chat", async (req, res) => {
     const chat = toIChat(req.body);

@@ -3,11 +3,12 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import handlers from "./handlers/handlers";
+import handlers from "./httpHandlers/httpHandlers";
 import cronJobs from "./cronJobs/cronJobs";
 import startupJobs from "./startupJobs/startupJobs";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import { createServer } from "http";
 
 const env = process.env.ENV;
 const clientOrigin = process.env.CLIENT_ORIGIN;
@@ -16,6 +17,8 @@ async function run() {
   const PORT = process.env.PORT || 9000;
 
   const app = express();
+  const httpServer = createServer(app);
+
   app.use(
     cors({
       origin: clientOrigin,
@@ -38,6 +41,6 @@ async function run() {
     await Promise.all(startupJobs.map((startupJob) => startupJob()));
   }
 
-  app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+  httpServer.listen(PORT, () => console.log(`Listening on ${PORT}`));
 }
 run();

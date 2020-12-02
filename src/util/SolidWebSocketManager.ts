@@ -35,14 +35,16 @@ export async function subscribeToUri(
     // Create a new WebSocket
     socket = new WebSocket(webSocketUri);
     globalSockets[webSocketUri] = socket;
-    globalConnectingSockets[webSocketUri] = new Promise((resolve, reject) => {
-      socket.on("open", () => {
-        socket.removeListener("error", reject);
-        delete globalConnectingSockets[webSocketUri];
-        resolve();
-      });
-      socket.on("error", reject);
-    });
+    globalConnectingSockets[webSocketUri] = new Promise<void>(
+      (resolve, reject) => {
+        socket.on("open", () => {
+          socket.removeListener("error", reject);
+          delete globalConnectingSockets[webSocketUri];
+          resolve();
+        });
+        socket.on("error", reject);
+      }
+    );
     socket.on("message", (data: string) => {
       const updatedUri = data.substr(4);
       socketEventEmitter.emit(updatedUri, updatedUri);
@@ -51,7 +53,7 @@ export async function subscribeToUri(
   }
 
   // Subscribe to a resource
-  const awaitSubscribeToResource = new Promise((resolve) => {
+  const awaitSubscribeToResource = new Promise<void>((resolve) => {
     const onSubscriptionSuccessful = (data: string) => {
       if (data === `ack ${uri}`) {
         socket.removeListener("message", onSubscriptionSuccessful);

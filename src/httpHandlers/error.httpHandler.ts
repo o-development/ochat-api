@@ -1,5 +1,5 @@
 import { ErrorRequestHandler } from "express";
-import IHandler from "./IHandler";
+import IHttpHandler from "./IHttpHandler";
 
 interface IErrorBody {
   message: string;
@@ -7,7 +7,7 @@ interface IErrorBody {
   stack?: string;
 }
 
-const errorHandler: IHandler = (app) => {
+const errorHandler: IHttpHandler = (app) => {
   const errorRequestHandler: ErrorRequestHandler = (err, req, res, next) => {
     console.error(err);
     if (res.headersSent) {

@@ -22,11 +22,13 @@ export async function createProfileIndex(profile: IProfile): Promise<IProfile> {
 
 export async function retrieveProfileIndex(url: string): Promise<IProfile> {
   try {
-    const { body } = await EsClient.get({
+    const {
+      body: { _source },
+    } = await EsClient.get({
       id: url,
       index: "profile",
     });
-    return toProfile(body);
+    return toProfile(_source);
   } catch (err) {
     if (err.meta?.statusCode === 404) {
       throw new HttpError(`Profile ${url} not found.`, 404);

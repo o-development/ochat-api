@@ -1,6 +1,6 @@
-import IHandler from "./IHandler";
+import IHttpHandler from "./IHttpHandler";
 
-const notificationSettingHandler: IHandler = (app) => {
+const notificationSettingHandler: IHttpHandler = (app) => {
   app.put("/notification-setting/:chat_url", () => {
     // TODO
   });
