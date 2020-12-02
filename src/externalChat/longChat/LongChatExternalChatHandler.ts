@@ -92,9 +92,9 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     // Construct chat.ttl uri from the date
     const date = new Date(message.timeCreated);
     const rootUri = getContainerUri(this.uri);
-    const messagePageUri = `${rootUri}${date.getFullYear()}/${
-      date.getMonth() + 1
-    }/${date.getDate()}/chat.ttl`;
+    const messagePageUri = `${rootUri}${date.getUTCFullYear()}/${`0${
+      date.getUTCMonth() + 1
+    }`.slice(-2)}/${`0${date.getUTCDate()}`.slice(-2)}/chat.ttl`;
     const messageUri = `${messagePageUri}#${message.id}`;
 
     // Patch the file to add message

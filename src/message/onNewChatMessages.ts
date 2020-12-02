@@ -1,6 +1,7 @@
 import IMessage from "./IMessage";
 import { retrieveChatIndex } from "../chat/chatIndexApi";
 import redisClient from "../util/RedisConnection";
+import { sendToSocketByWebId } from "../socketHanders/socketHandler";
 
 export function getRedisChatMessageKey(
   chatUri: string,
@@ -39,9 +40,10 @@ export default async function onNewChatMessages(
     (participant) => participant.webId
   );
 
-  console.log(messagesToPost);
-
   // Send socket.io
+  chatParticipantWebIds.forEach((webId) => {
+    sendToSocketByWebId(webId, "message", chatUri, messagesToPost);
+  });
 
   // Determine who a push notification should be sent to
 
