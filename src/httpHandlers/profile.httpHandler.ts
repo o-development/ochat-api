@@ -2,7 +2,6 @@ import IHttpHandler from "./IHttpHandler";
 import indexProfile from "../profile/indexProfile";
 import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import { retrieveProfileIndex } from "../profile/profileIndexApi";
-import fetchAcl from "../util/fetchAcl";
 
 const profileHandler: IHttpHandler = (app) => {
   app.get("/profile/authenticated", async (req, res) => {
@@ -20,12 +19,8 @@ const profileHandler: IHttpHandler = (app) => {
     res.status(201).send(profile);
   });
 
-  app.post("/profile/search", async (req) => {
-    const authSession = getLoggedInAuthSession(req);
-    await fetchAcl(
-      "https://jackson.solidcommunity.net/public/AnotherLongChat/index.ttl#this",
-      authSession.fetch.bind(authSession)
-    );
+  app.post("/profile/search", async () => {
+    throw new Error("Not Implemented");
   });
 };
 

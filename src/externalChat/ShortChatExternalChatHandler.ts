@@ -37,6 +37,10 @@ export default class ShortChatExternalChatHandler extends AbstractExternalChatHa
     throw new Error("Method not implemented.");
   }
 
+  createExternalChat(chat: IChat): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   updateExternalChat(): Promise<void> {
     throw new Error("Method not implemented.");
   }

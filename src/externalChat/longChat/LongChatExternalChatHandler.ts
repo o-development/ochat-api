@@ -2,12 +2,15 @@ import { AnyPointer } from "clownface";
 import AbstractExternalChatHandler from "../AbstractExternalChatHandler";
 import IChat, { IChatType } from "../../chat/IChat";
 import {
+  author,
   content,
+  dateCreatedElements,
   dateCreatedTerms,
   flowMessage,
   foafImage,
   LongChat,
   maker,
+  rdfType,
   title,
   xslDateTime,
 } from "../../util/nodes";
@@ -24,6 +27,8 @@ import { addToCache, getLongChatMessageUriFromCache } from "./LongChatCache";
 import getContainerUri from "../util/getContainerUri";
 import longChatWebsocketHandler from "./LongChatWebsocketHandler";
 import fetchExternalLongChatMessages from "./fetchExternalLongChatMessages";
+import HttpError from "../../util/HttpError";
+import saveExternalChatParticipants from "../util/saveExternalChatParticipants";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   static fromClownfaceNode(
@@ -112,7 +117,55 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     };
   }
 
-  updateExternalChat(): Promise<void> {
+  async createExternalChat(chat: IChat): Promise<void> {
+    if (!this.uri.endsWith("/")) {
+      throw new HttpError(
+        `Long Chat uris must be containers (They must end in a slash)`,
+        400
+      );
+    }
+    const chatUri = `${this.uri}index.ttl`;
+    const administrator = chat.participants.find(
+      (participant) => participant.isAdmin
+    );
+    if (!administrator) {
+      throw new HttpError(
+        `Created chat must contain at least one participant who is an administrator`,
+        400
+      );
+    }
+    // Build Index
+    const ds = getBlankClownfaceDataset();
+    ds.namedNode(`${chatUri}#this`)
+      .addOut(rdfType, LongChat)
+      .addOut(author, namedNode(administrator.webId))
+      .addOut(
+        dateCreatedElements,
+        literal(new Date().toISOString(), xslDateTime)
+      )
+      .addOut(title, chat.name);
+    // Save Index
+    await patchClownfaceDataset(chatUri, ds, this.fetcher);
+    // Save Auth
+    await saveExternalChatParticipants(this.uri, chat.participants, {
+      fetcher: this.fetcher,
+      isAdmin: {
+        read: true,
+        write: true,
+        append: true,
+        control: true,
+      },
+      hasAccess: {
+        read: true,
+        write: true,
+        append: true,
+        control: false,
+      },
+      isPublic: chat.isPublic,
+    });
+  }
+
+  updateExternalChat(chat: Partial<IChat>): Promise<void> {
     throw new Error("Method not implemented.");
   }
 

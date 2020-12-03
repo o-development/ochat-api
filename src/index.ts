@@ -37,7 +37,7 @@ async function run() {
 
   cronJobs.forEach((cronJob) => cronJob());
 
-  if (true || env !== "dev") {
+  if (env !== "dev") {
     console.log("Running startup jobs");
     await Promise.all(startupJobs.map((startupJob) => startupJob()));
   }

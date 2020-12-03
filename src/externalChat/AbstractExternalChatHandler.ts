@@ -82,7 +82,9 @@ export default abstract class AbstractExternalChatHandler {
 
   abstract addMessage(message: IMessage): Promise<IMessage>;
 
-  abstract updateExternalChat(): Promise<void>;
+  abstract createExternalChat(chat: IChat): Promise<void>;
+
+  abstract updateExternalChat(chat: Partial<IChat>): Promise<void>;
 
   abstract updateExternalChatParticipants(): Promise<void>;
 

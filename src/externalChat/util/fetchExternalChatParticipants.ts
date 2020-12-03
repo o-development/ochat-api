@@ -1,4 +1,4 @@
-import fetchAcl from "../../util/fetchAcl";
+import { fetchAcl } from "../../util/aclUtils";
 import getContainerUri from "./getContainerUri";
 import { IChatParticipant } from "../../chat/IChat";
 import IFetcher from "../../util/IFetcher";

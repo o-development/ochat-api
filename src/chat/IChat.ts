@@ -21,7 +21,7 @@ export default interface IChat {
   images: string[];
   participants: IChatParticipant[];
   isPublic: boolean;
-  lastMessage: IMessage;
+  lastMessage?: IMessage;
 }
 
 export const IChatPartialSchema: Schema = {
@@ -53,15 +53,7 @@ export const IChatPartialSchema: Schema = {
 
 const IChatSchema: Schema = {
   ...IChatPartialSchema,
-  required: [
-    "uri",
-    "type",
-    "name",
-    "images",
-    "participants",
-    "isPublic",
-    "lastMessage",
-  ],
+  required: ["uri", "type", "name", "images", "participants", "isPublic"],
   properties: {
     ...IChatPartialSchema.properties,
     participants: {
