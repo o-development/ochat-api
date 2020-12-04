@@ -7,7 +7,6 @@ import {
   hasResourceAcl,
   hasAccessibleAcl,
   createAcl,
-  getResourceAcl,
   setAgentDefaultAccess,
   saveAclFor,
   setPublicResourceAccess,
