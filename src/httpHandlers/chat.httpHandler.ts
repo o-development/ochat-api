@@ -38,8 +38,9 @@ const chatHandler: IHttpHandler = (app) => {
     const term = req.query.term;
     const page = parseInt(req.query.page || "0");
     const limit = parseInt(req.query.limit || "10");
+    const includeProfiles = !!term;
     const searchResults = await searchChats(
-      { term, page, limit },
+      { term, page, limit, includeProfiles },
       {
         fetcher: authSession.fetch.bind(req.authSession),
         webId: authSession.info.webId,

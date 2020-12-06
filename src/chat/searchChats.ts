@@ -1,7 +1,8 @@
-import Chat, { toIChat } from "./IChat";
 import IFetcher from "../util/IFetcher";
-import EsClient from "../util/EsClient";
-import { RequestParams } from "@elastic/elasticsearch";
+import { getChatCollection, getProfileCollection } from "../util/MongoClient";
+import IChat from "./IChat";
+import IProfile from "src/profile/IProfile";
+import { FilterQuery } from "mongodb";
 
 export default async function searchChats(
   searchOptions: {
@@ -11,60 +12,40 @@ export default async function searchChats(
     term?: string;
   },
   options: { fetcher?: IFetcher; webId: string }
-): Promise<Chat[]> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const searchBody: RequestParams.Search<Record<string, any>> = {
-    index: "chat",
-    from: searchOptions.page,
-    size: searchOptions.limit,
-    body: {
-      sort: [
-        "_score",
-        {
-          "lastMessage.timeCreated": "desc",
-        },
-      ],
-      query: {
-        bool: {
-          should: [
-            {
-              term: {
-                "participants.webId": {
-                  value: options.webId,
-                  boost: 2.0,
-                },
-              },
-            },
-            {
-              term: {
-                isPublic: true,
-              },
-            },
-          ],
-          minimum_should_match: 1,
-        },
-      },
-    },
-  };
-  if (searchOptions.term && searchBody.body) {
-    searchBody.body.query.bool.must = {
-      multi_match: {
-        query: searchOptions.term,
-        type: "phrase_prefix",
-        fields: [
-          "name",
-          "name._2gram",
-          "name._3gram",
-          "participants.name",
-          "participants.name._2gram",
-          "participatns.name._3gram",
-        ],
-      },
-    };
-  }
+): Promise<{ chats: IChat[]; profiles?: IProfile[] }> {
+  const chatCollection = await getChatCollection();
+  const profileCollection = await getProfileCollection();
 
-  const result = await EsClient.search(searchBody);
-  return result.body.hits.hits.map((hit: { _source: unknown }) => {
-    return toIChat(hit._source);
-  });
+  const chatSearchQuery: FilterQuery<IChat> = {
+    "participants.webId": options.webId,
+  };
+  if (searchOptions.term) {
+    chatSearchQuery.$text = { $search: searchOptions.term };
+  }
+  const chatPromise: Promise<IChat[]> = chatCollection
+    .find(chatSearchQuery)
+    .sort({ "lastMessage.timeCreated": -1 })
+    .skip(searchOptions.page)
+    .limit(searchOptions.limit)
+    .toArray();
+
+  let profilePromise: Promise<IProfile[]> = Promise.resolve([]);
+  if (searchOptions.includeProfiles) {
+    const profileSearchQuery: FilterQuery<IProfile> = {
+      searchable: true,
+    };
+    if (searchOptions.term) {
+      profileSearchQuery.$text = { $search: searchOptions.term };
+    }
+    profilePromise = profileCollection
+      .find(profileSearchQuery)
+      .skip(searchOptions.page)
+      .limit(searchOptions.limit)
+      .toArray();
+  }
+  const [chats, profiles] = await Promise.all([chatPromise, profilePromise]);
+  return {
+    chats,
+    profiles,
+  };
 }

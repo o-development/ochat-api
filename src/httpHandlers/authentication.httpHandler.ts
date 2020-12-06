@@ -28,6 +28,8 @@ const authenticationHandler: IHttpHandler = (app) => {
     session({
       secret: sessionSecret,
       cookie: { secure: env !== "dev" },
+      resave: false,
+      saveUninitialized: false,
     })
   );
 

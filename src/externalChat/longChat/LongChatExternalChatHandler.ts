@@ -186,8 +186,19 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async runStartupTask(): Promise<void> {
-    await longChatWebsocketHandler.beginListeningToChat(this.uri, undefined, {
-      fetcher: this.fetcher,
-    });
+    try {
+      await longChatWebsocketHandler.beginListeningToChat(this.uri, undefined, {
+        fetcher: this.fetcher,
+      });
+    } catch (err) {
+      if (err.status === 403) {
+        throw new HttpError(
+          `Unauthorized to set up WebSockets connection for ${this.chat.uri}`,
+          403,
+          { chatUri: this.chat.uri, uri: this.chat.uri }
+        );
+      }
+      throw err;
+    }
   }
 }

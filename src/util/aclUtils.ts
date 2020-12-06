@@ -24,7 +24,9 @@ export async function fetchAcl(
   const accessByAgent = getAgentAccessAll(chatWithAcl);
   const publicAccess = getPublicAccess(chatWithAcl);
   if (!accessByAgent) {
-    throw new HttpError(`Not allowed to access acl for ${url}`, 403);
+    throw new HttpError(`Not allowed to access acl for ${url}`, 403, {
+      uri: url,
+    });
   }
   if (publicAccess) {
     accessByAgent["public"] = publicAccess;

@@ -1,16 +1,18 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { profileDb, chatDb } from "../util/MongoClient";
+import { getProfileCollection, getChatCollection } from "../util/MongoClient";
 
 async function run() {
+  const profileCollection = await getProfileCollection();
+  const chatCollection = await getChatCollection();
   try {
-    await profileDb.drop();
+    await profileCollection.drop();
   } catch (err) {
     console.log(err);
   }
   try {
-    await chatDb.drop();
+    await chatCollection.drop();
   } catch (err) {
     console.log(err);
   }

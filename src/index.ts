@@ -10,12 +10,15 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import socketHandler from "./socketHanders/socketHandler";
+import mongoClient from "./util/MongoClient";
 
 const env = process.env.ENV;
 const clientOrigin = process.env.CLIENT_ORIGIN;
 
 async function run() {
   const PORT = process.env.PORT || 9000;
+
+  await mongoClient.connect();
 
   const app = express();
   const httpServer = createServer(app);
@@ -37,10 +40,8 @@ async function run() {
 
   cronJobs.forEach((cronJob) => cronJob());
 
-  if (env !== "dev") {
-    console.log("Running startup jobs");
-    await Promise.all(startupJobs.map((startupJob) => startupJob()));
-  }
+  console.log("Running startup jobs");
+  await Promise.all(startupJobs.map((startupJob) => startupJob()));
 
   socketHandler(httpServer);
 

@@ -18,7 +18,7 @@ export default function getLoggedInAuthSession(
     !req.authSession.info.webId ||
     !req.authSession.info.isLoggedIn
   ) {
-    throw new HttpError("Must be logged in", 403);
+    throw new HttpError("Must be logged in", 401);
   }
   return req.authSession as ILoggedInAuthSession;
 }

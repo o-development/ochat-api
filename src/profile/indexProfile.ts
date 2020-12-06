@@ -1,7 +1,5 @@
 import Profile from "./IProfile";
 import fetchExternalProfile from "./externalProfile/fetchExternalProfile";
-import EsClient from "../util/EsClient";
-import HttpError from "../util/HttpError";
 import IFetcher from "../util/IFetcher";
 import { createProfileIndex } from "./profileIndexApi";
 

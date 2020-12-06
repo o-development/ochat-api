@@ -22,6 +22,7 @@ export default interface IChat {
   participants: IChatParticipant[];
   isPublic: boolean;
   lastMessage?: IMessage;
+  error?: { message: string; metadata: Record<string, unknown> };
 }
 
 export const IChatPartialSchema: Schema = {
@@ -48,6 +49,13 @@ export const IChatPartialSchema: Schema = {
     },
     isPublic: { type: "boolean" },
     lastMessage: IMessageSchema,
+    error: {
+      type: "object",
+      properties: {
+        message: { type: "string" },
+        metadata: { type: "object", additionalItems: true },
+      },
+    },
   },
 };
 

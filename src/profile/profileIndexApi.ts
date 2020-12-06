@@ -1,18 +1,17 @@
-import EsClient from "../util/EsClient";
 import HttpError from "../util/HttpError";
+import { getProfileCollection } from "../util/MongoClient";
 import IProfile, { toProfile } from "./IProfile";
 
 export async function createProfileIndex(profile: IProfile): Promise<IProfile> {
+  const profileCollection = await getProfileCollection();
   try {
-    await EsClient.create({
-      id: profile.webId,
-      index: "profile",
-      body: profile,
+    await profileCollection.insertOne({
+      ...profile,
     });
     return profile;
   } catch (err) {
-    if (err.meta?.statusCode === 409) {
-      throw new HttpError(`${profile.webId} already indexed`, 409, {
+    if (err.code === 11000) {
+      throw new HttpError(`${profile.webId} is already indexed.`, 409, {
         uri: profile.webId,
       });
     }
@@ -21,19 +20,12 @@ export async function createProfileIndex(profile: IProfile): Promise<IProfile> {
 }
 
 export async function retrieveProfileIndex(url: string): Promise<IProfile> {
-  try {
-    const {
-      body: { _source },
-    } = await EsClient.get({
-      id: url,
-      index: "profile",
-    });
-    return toProfile(_source);
-  } catch (err) {
-    if (err.meta?.statusCode === 404) {
-      throw new HttpError(`Profile ${url} not found.`, 404);
-    }
-    throw err;
+  const profileCollection = await getProfileCollection();
+  const profile = await profileCollection.findOne({ webId: url });
+  if (profile) {
+    return toProfile(profile);
+  } else {
+    throw new HttpError(`Profile ${url} not found.`, 404, { uri: url });
   }
 }
 

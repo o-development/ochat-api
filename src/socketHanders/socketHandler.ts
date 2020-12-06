@@ -47,7 +47,7 @@ export default function socketHandler(httpServer: HttpServer): void {
         }
         authSession = await sessionManager.getSession(auth);
         if (!authSession.info.isLoggedIn || !authSession.info.webId) {
-          throw new HttpError("User is not logged in", 403);
+          throw new HttpError("User is not logged in", 401);
         }
 
         // Add to the sockets list

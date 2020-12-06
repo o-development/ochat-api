@@ -1,18 +1,18 @@
 import HttpError from "../util/HttpError";
-import EsClient from "../util/EsClient";
+import { getChatCollection } from "../util/MongoClient";
 import IChat, { toIChat } from "./IChat";
+import { ObjectId } from "mongodb";
 
 export async function createChatIndex(chat: IChat): Promise<IChat> {
+  const chatCollection = await getChatCollection();
   try {
-    await EsClient.create({
-      id: chat.uri,
-      index: "chat",
-      body: chat,
+    await chatCollection.insertOne({
+      ...chat,
     });
     return chat;
   } catch (err) {
-    if (err.meta?.statusCode === 409) {
-      throw new HttpError(`${chat.uri} already indexed`, 409, {
+    if (err.code === 11000) {
+      throw new HttpError(`${chat.uri} is already indexed.`, 409, {
         uri: chat.uri,
       });
     }
@@ -21,8 +21,13 @@ export async function createChatIndex(chat: IChat): Promise<IChat> {
 }
 
 export async function retrieveChatIndex(chatUri: string): Promise<IChat> {
-  const chat = await EsClient.get({ index: "chat", id: chatUri });
-  return toIChat(chat.body._source);
+  const chatCollection = await getChatCollection();
+  const chat = await chatCollection.findOne({ wri: chatUri });
+  if (chat) {
+    return toIChat(chat);
+  } else {
+    throw new HttpError(`Chat ${chatUri} not found.`, 404, { uri: chatUri });
+  }
 }
 
 export function updateChatIndex(chat: Partial<IChat>): Promise<IChat> {
