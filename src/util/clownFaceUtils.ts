@@ -4,7 +4,6 @@ import { dataset as Dataset, namedNode } from "@rdfjs/dataset";
 import ParserN3 from "@rdfjs/parser-n3";
 import { Readable } from "stream";
 import IFetcher, { guaranteeFetcher } from "../util/IFetcher";
-import nodeFetch from "node-fetch";
 import DatasetCore from "@rdfjs/dataset/DatasetCore";
 import { rdfType } from "./nodes";
 import HttpError from "./HttpError";
@@ -17,11 +16,15 @@ export async function fetchClownfaceDataset(
   // As long as you don't use the "Request" from "RequestInfo" you're fine - Jackson
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  fetcher: IFetcher = nodeFetch
+  possibleFetcher?: IFetcher
 ): Promise<Clownface> {
+  const fetcher = guaranteeFetcher(possibleFetcher);
   const fetchResult = await fetcher(url);
   if (!fetchResult.ok) {
-    throw new HttpError(fetchResult.statusText, fetchResult.status);
+    throw new HttpError(
+      `Fetch to ${url} got ${fetchResult.statusText}`,
+      fetchResult.status
+    );
   }
   const ttl = await fetchResult.text();
 

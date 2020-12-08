@@ -31,6 +31,27 @@ import HttpError from "../../util/HttpError";
 import saveExternalChatParticipants from "../util/saveExternalChatParticipants";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
+  constructor(
+    url: string,
+    chatType: IChatType.LongChat,
+    options?: {
+      fetcher?: IFetcher;
+      initialChat?: Partial<IChat>;
+    }
+  ) {
+    let adjustedUrl = url;
+    if (url.endsWith("/")) {
+      adjustedUrl = `${url}index.ttl#this`;
+    } else if (url.endsWith("index.ttl")) {
+      adjustedUrl = `${url}#this`;
+    } else if (!url.endsWith(`index.ttl#this`)) {
+      throw new HttpError(`${url} is an invalid LongChat uri.`, 400, {
+        uri: url,
+      });
+    }
+    super(adjustedUrl, chatType, options);
+  }
+
   static fromClownfaceNode(
     url: string,
     node: AnyPointer,
@@ -69,28 +90,43 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     });
     this.chat.isPublic = participantsResult.isPublic;
     this.chat.participants = participantsResult.participants;
+    if (!this.chat.images || this.chat.images.length < 1) {
+      this.chat.images = participantsResult.participants
+        .map((participant) => participant.image)
+        .filter((image) => image !== undefined) as string[];
+    }
   }
 
   async fetchExternalChatMessages(
     previousPageId?: string
   ): Promise<IMessage[]> {
     // Get the chat document
-    const chatMessageDocumentUrl = await getLongChatMessageUriFromCache(
-      this.uri,
-      previousPageId,
-      {
-        fetcher: this.fetcher,
+    try {
+      const chatMessageDocumentUrl = await getLongChatMessageUriFromCache(
+        this.uri,
+        previousPageId,
+        {
+          fetcher: this.fetcher,
+        }
+      );
+      const messages = await fetchExternalLongChatMessages(
+        this.uri,
+        chatMessageDocumentUrl,
+        {
+          fetcher: this.fetcher,
+        }
+      );
+      this.setMessages(chatMessageDocumentUrl, messages, !previousPageId);
+      return messages;
+    } catch (err) {
+      if (
+        err.metadata &&
+        err.metadata.type === "LONG_CHAT_MESSAGE_NOT_IN_CACHE"
+      ) {
+        return [];
       }
-    );
-    const messages = await fetchExternalLongChatMessages(
-      this.uri,
-      chatMessageDocumentUrl,
-      {
-        fetcher: this.fetcher,
-      }
-    );
-    this.setMessages(chatMessageDocumentUrl, messages, !previousPageId);
-    return messages;
+      throw err;
+    }
   }
 
   async addMessage(message: IMessage): Promise<IMessage> {
@@ -118,13 +154,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async createExternalChat(chat: IChat): Promise<void> {
-    if (!this.uri.endsWith("/")) {
-      throw new HttpError(
-        `Long Chat uris must be containers (They must end in a slash)`,
-        400
-      );
-    }
-    const chatUri = `${this.uri}index.ttl`;
+    const chatRoot = getContainerUri(this.uri);
     const administrator = chat.participants.find(
       (participant) => participant.isAdmin
     );
@@ -136,7 +166,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     }
     // Build Index
     const ds = getBlankClownfaceDataset();
-    ds.namedNode(`${chatUri}#this`)
+    ds.namedNode(this.uri)
       .addOut(rdfType, LongChat)
       .addOut(author, namedNode(administrator.webId))
       .addOut(
@@ -145,9 +175,9 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
       )
       .addOut(title, chat.name);
     // Save Index
-    await patchClownfaceDataset(chatUri, ds, this.fetcher);
+    await patchClownfaceDataset(this.uri, ds, this.fetcher);
     // Save Auth
-    await saveExternalChatParticipants(this.uri, chat.participants, {
+    await saveExternalChatParticipants(chatRoot, chat.participants, {
       fetcher: this.fetcher,
       isAdmin: {
         read: true,

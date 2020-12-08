@@ -1,6 +1,9 @@
 import IChat from "./IChat";
 import IFetcher from "../util/IFetcher";
 import externalChatHanderFactory from "../externalChat/externalChatHandlerFactory";
+import { createChatIndex } from "./chatIndexApi";
+import newChatIndex from "./newChatIndex";
+import registerChatListeners from "./registerChatListeners";
 
 export default async function newChat(
   chatData: IChat,
@@ -16,12 +19,11 @@ export default async function newChat(
   // Create the chat
   await externalChatHandler.createExternalChat(chatData);
 
-  throw new Error("Not Implemented");
-
-  // const indexedChat = await createChatIndex(chat);
-  // await registerChatListeners(chatUri, {
-  //   optionalExternalChatHandler: externalChatHandler,
-  //   fetcher: options.fetcher,
-  // });
-  // return indexedChat;
+  // Index Chat
+  const indexedChat = await newChatIndex(chatData.uri, {
+    fetcher: options.fetcher,
+    webId: options.webId,
+    optionalExternalChatHandler: externalChatHandler,
+  });
+  return indexedChat;
 }

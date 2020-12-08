@@ -9,10 +9,6 @@ import HttpError from "../util/HttpError";
 import { getChatCollection } from "../util/MongoClient";
 
 const runAllChatStartupTasks: IStartupJob = async () => {
-  if (process.env.ENV === "dev") {
-    return;
-  }
-
   const chatCollection = await getChatCollection();
   // Stream All Chats From ES
   await streamAllChatIndexes(async (possibleChat: unknown) => {
@@ -40,7 +36,9 @@ const runAllChatStartupTasks: IStartupJob = async () => {
       const externalChatHandler = await externalChatHanderFactory(
         chat.uri,
         chat.type,
-        { fetcher }
+        {
+          fetcher,
+        }
       );
       // Run Startup Task
       await externalChatHandler.runStartupTask();
@@ -50,6 +48,7 @@ const runAllChatStartupTasks: IStartupJob = async () => {
         fetcher,
       });
     } catch (err) {
+      console.error(err);
       const chatId = (possibleChat as { _id: string })._id;
       if (chatId) {
         // If there's an error update the chat to reflect that

@@ -30,6 +30,24 @@ class LongChatWebSocketHandler extends EventEmitter {
     const mostRecentChatPage =
       currentMostRecentChatPage ||
       (await catchUpUriCache(chatUri, { fetcher: options?.fetcher }))[0];
+
+    if (!mostRecentChatPage) {
+      // Only listen to the root container because no others exist.
+      const rootContainer = getContainerUri(chatUri);
+      subscribeToUri(
+        rootContainer,
+        (containerUri) =>
+          this.handleContainerUpdate(chatUri, containerUri, {
+            fetcher: options?.fetcher,
+          }),
+        {
+          fetcher: options?.fetcher,
+          clearOtherSubscriptionsToThisUriFirst: true,
+        }
+      );
+      return;
+    }
+
     const dayContainer = getContainerUri(mostRecentChatPage);
     const monthContainer = getContainerUri(dayContainer);
     const yearContainer = getContainerUri(monthContainer);

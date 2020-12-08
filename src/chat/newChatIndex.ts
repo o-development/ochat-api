@@ -3,18 +3,24 @@ import IFetcher from "../util/IFetcher";
 import externalChatHandlerFactory from "../externalChat/externalChatHandlerFactory";
 import { createChatIndex } from "./chatIndexApi";
 import registerChatListeners from "./registerChatListeners";
+import AbstractExternalChatHandler from "../externalChat/AbstractExternalChatHandler";
 
 export default async function newChatIndex(
   chatUri: string,
-  options: { fetcher?: IFetcher; webId: string }
+  options: {
+    fetcher?: IFetcher;
+    webId: string;
+    optionalExternalChatHandler?: AbstractExternalChatHandler;
+  }
 ): Promise<IChat> {
-  const externalChatHandler = await externalChatHandlerFactory(
-    chatUri,
-    undefined,
-    { fetcher: options.fetcher }
-  );
+  const externalChatHandler =
+    options.optionalExternalChatHandler ||
+    (await externalChatHandlerFactory(chatUri, undefined, {
+      fetcher: options.fetcher,
+    }));
   const chat = await externalChatHandler.getChat();
   const indexedChat = await createChatIndex(chat);
+  await externalChatHandler.runStartupTask();
   await registerChatListeners(chatUri, {
     optionalExternalChatHandler: externalChatHandler,
     fetcher: options.fetcher,

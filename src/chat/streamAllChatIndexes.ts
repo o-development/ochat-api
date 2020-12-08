@@ -36,6 +36,9 @@ export default async function streamAllChatIndexes(
     });
     stream.on("close", () => {
       doneGettingChats = true;
+      if (currentlyProcessing === 0) {
+        resolve();
+      }
     });
   });
 }

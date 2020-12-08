@@ -8,7 +8,7 @@ export enum IChatType {
 }
 
 export interface IChatParticipant {
-  name: string;
+  name?: string;
   webId: string;
   image?: string;
   isAdmin: boolean;

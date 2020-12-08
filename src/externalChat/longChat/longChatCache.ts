@@ -84,7 +84,12 @@ export async function getLongChatMessageUriFromCache(
   throw new HttpError(
     `Could not find the chat after page ${previousPageId}`,
     404,
-    { uri: chatUri, chatUri, previousPageId }
+    {
+      uri: chatUri,
+      chatUri,
+      previousPageId,
+      type: "LONG_CHAT_MESSAGE_NOT_IN_CACHE",
+    }
   );
 }
 

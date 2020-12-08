@@ -11,6 +11,7 @@ export const vcardImage = namedNode("http://www.w3.org/2006/vcard/ns#hasPhoto");
 export const foafImage = namedNode("http://xmlns.com/foaf/0.1/img");
 export const vcardName = namedNode("http://www.w3.org/2006/vcard/ns#fn");
 export const foafName = namedNode("http://xmlns.com/foaf/0.1/name");
+export const stroage = namedNode("http://www.w3.org/ns/pim/space#storage");
 
 // Chat Types
 export const author = namedNode("http://purl.org/dc/elements/1.1/author");

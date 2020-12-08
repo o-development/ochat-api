@@ -8,6 +8,7 @@ import {
   foafImage,
   foafName,
   vcardName,
+  stroage,
 } from "../../util/nodes";
 import HttpError from "../../util/HttpError";
 
@@ -26,12 +27,16 @@ export default async function fetchExternalProfile(
       { requireAllTypes: true }
     );
 
+    const profileStorage =
+      profileNode.out(stroage).value || `${new URL(url).origin}/`;
+
     // Extract profile from RDF
     const profile: Profile = {
       webId: url,
       image:
         profileNode.out(vcardImage).value || profileNode.out(foafImage).value,
       name: profileNode.out(vcardName).value || profileNode.out(foafName).value,
+      defaultStorageLocation: `${profileStorage}chats/`,
     };
     return profile;
   } catch (err) {
