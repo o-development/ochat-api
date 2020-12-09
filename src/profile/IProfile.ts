@@ -22,5 +22,10 @@ const IProfileSchema: Schema = {
 };
 
 export function toProfile(potentialProfile: unknown): IProfile {
-  return validateSchema(potentialProfile, IProfileSchema);
+  const val = validateSchema(potentialProfile, IProfileSchema);
+  // Remove Id for MongoDb
+  if (!!val && !!(val as { _id?: string })._id) {
+    delete (val as { _id?: string })._id;
+  }
+  return val as IProfile;
 }

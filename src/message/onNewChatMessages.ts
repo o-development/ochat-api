@@ -2,6 +2,7 @@ import IMessage from "./IMessage";
 import { retrieveChatIndex } from "../chat/chatIndexApi";
 import redisClient from "../util/RedisConnection";
 import { sendToSocketByWebId } from "../socketHanders/socketHandler";
+import updateChatIndex from "../chat/updateChatIndex";
 
 export function getRedisChatMessageKey(
   chatUri: string,
@@ -50,4 +51,24 @@ export default async function onNewChatMessages(
   // Construct Push notification
 
   // Send Push Notification
+
+  // Update Chat with new message
+  const mostRecentMessage = messages.sort((a, b) => {
+    if (a.timeCreated > b.timeCreated) {
+      return -1;
+    } else if (a.timeCreated < b.timeCreated) {
+      return 1;
+    } else {
+      return 0;
+    }
+  })[0];
+  if (mostRecentMessage) {
+    await updateChatIndex(
+      chatUri,
+      {
+        lastMessage: mostRecentMessage,
+      },
+      { webId: mostRecentMessage.maker }
+    );
+  }
 }

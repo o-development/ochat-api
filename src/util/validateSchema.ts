@@ -12,7 +12,6 @@ export default function validateSchema<T>(value: unknown, schema: Schema): T {
     });
     return validationResult.instance;
   } catch (err) {
-    console.log(err);
     if (err instanceof ValidationError) {
       throw new HTTPError(err.stack, 400);
     }

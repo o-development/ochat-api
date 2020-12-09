@@ -1,10 +1,20 @@
-import IChat from "./IChat";
-import IFetcher from "../util/IFetcher";
+import { Collection } from "mongodb";
+import HttpError from "../util/HttpError";
+import { getChatCollection } from "../util/MongoClient";
+import IChat, { toIChat } from "./IChat";
 
-export default function getChatIndex(
-  chatUrl: string,
-  options: { fetcher?: IFetcher; webId: string }
+export default async function getChatIndex(
+  chatUri: string,
+  options: { webId: string }
 ): Promise<IChat> {
-  // TODO
-  throw new Error("not implemented");
+  const chatCollection = await getChatCollection();
+  const chat = await chatCollection.findOne({
+    uri: chatUri,
+    "participants.webId": options.webId,
+  });
+  if (chat) {
+    return toIChat(chat);
+  } else {
+    throw new HttpError(`Chat ${chatUri} not found.`, 404, { uri: chatUri });
+  }
 }

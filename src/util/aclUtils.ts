@@ -39,10 +39,6 @@ export async function setAcl(
   webIdAccess: Record<string, Access>,
   possibleFetcher?: IFetcher
 ): Promise<void> {
-  console.log("Set ACL");
-  console.log(webIdAccess);
-  console.log(url);
-
   const fetcher = guaranteeFetcher(possibleFetcher);
   // Fetch the SolidDataset and its associated ACLs, if available:
   const myDatasetWithAcl = await getSolidDatasetWithAcl(url, {
@@ -76,7 +72,6 @@ export async function setAcl(
   // Now save the ACL:
   await saveAclFor(myDatasetWithAcl, resourceAcl, {
     fetch: (info, init) => {
-      console.log(info, init);
       return fetcher(info, init);
     },
   });

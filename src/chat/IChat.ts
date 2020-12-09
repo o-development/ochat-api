@@ -75,7 +75,12 @@ const IChatSchema: Schema = {
 };
 
 export function toIChat(potentialIChat: unknown): IChat {
-  return validateSchema(potentialIChat, IChatSchema);
+  const val = validateSchema(potentialIChat, IChatSchema);
+  // Remove Id for MongoDb
+  if (!!val && !!(val as { _id?: string })._id) {
+    delete (val as { _id?: string })._id;
+  }
+  return val as IChat;
 }
 
 export function toIChatPartial(potentialIChatPartial: unknown): Partial<IChat> {

@@ -4,6 +4,7 @@ import externalChatHandlerFactory from "../externalChat/externalChatHandlerFacto
 import { createChatIndex } from "./chatIndexApi";
 import registerChatListeners from "./registerChatListeners";
 import AbstractExternalChatHandler from "../externalChat/AbstractExternalChatHandler";
+import onChatUpdate from "./onChatUpdate";
 
 export default async function newChatIndex(
   chatUri: string,
@@ -25,5 +26,6 @@ export default async function newChatIndex(
     optionalExternalChatHandler: externalChatHandler,
     fetcher: options.fetcher,
   });
+  await onChatUpdate(indexedChat);
   return indexedChat;
 }

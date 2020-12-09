@@ -1,9 +1,8 @@
 import IChat from "./IChat";
 import IFetcher from "../util/IFetcher";
 import externalChatHanderFactory from "../externalChat/externalChatHandlerFactory";
-import { createChatIndex } from "./chatIndexApi";
 import newChatIndex from "./newChatIndex";
-import registerChatListeners from "./registerChatListeners";
+import createNewChatMessage from "../message/createChatMessage";
 
 export default async function newChat(
   chatData: IChat,
@@ -25,5 +24,18 @@ export default async function newChat(
     webId: options.webId,
     optionalExternalChatHandler: externalChatHandler,
   });
+
+  // Create a message that this person made a new chat
+  const creatorsName =
+    indexedChat.participants.find((p) => p.webId === options.webId)?.name ||
+    options.webId;
+  await createNewChatMessage(
+    chatData.uri,
+    {
+      maker: options.webId,
+      content: `${creatorsName} created "${chatData.name}"`,
+    },
+    { fetcher: options.fetcher, webId: options.webId }
+  );
   return indexedChat;
 }

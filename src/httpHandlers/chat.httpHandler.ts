@@ -4,10 +4,10 @@ import newChat from "../chat/newChat";
 import HttpError from "../util/HttpError";
 import searchChats from "../chat/searchChats";
 import toUri from "../util/toUri";
-import getChatIndex from "../chat/getChatIndex";
 import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import newChatIndex from "../chat/newChatIndex";
 import updateChatIndex from "../chat/updateChatIndex";
+import getChatIndex from "../chat/getChatIndex";
 
 const chatHandler: IHttpHandler = (app) => {
   // New Chat
@@ -54,7 +54,6 @@ const chatHandler: IHttpHandler = (app) => {
     const authSession = getLoggedInAuthSession(req);
     const chatUri = toUri(req.params.chat_uri);
     const chat = await getChatIndex(chatUri, {
-      fetcher: authSession.fetch.bind(req.authSession),
       webId: authSession.info.webId,
     });
     res.status(200).send(chat);
@@ -77,7 +76,6 @@ const chatHandler: IHttpHandler = (app) => {
     const chatUri = toUri(req.params.chat_uri);
     const chatData = toIChatPartial(req.body);
     const savedChat = await updateChatIndex(chatUri, chatData, {
-      fetcher: authSession.fetch.bind(req.authSession),
       webId: authSession.info.webId,
     });
     res.status(200).send(savedChat);

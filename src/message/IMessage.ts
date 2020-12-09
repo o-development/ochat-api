@@ -9,6 +9,12 @@ export default interface IMessage {
   timeCreated: string;
 }
 
+export interface IMessageCreationData {
+  id?: string;
+  maker: string;
+  content: string;
+}
+
 export const IMessageSchema: Schema = {
   type: "object",
   properties: {
@@ -21,6 +27,25 @@ export const IMessageSchema: Schema = {
   required: ["id", "page", "maker", "content", "timeCreated"],
 };
 
+export const IMessageCreationDataSchema = {
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    maker: { type: "string", format: "uri" },
+    content: { type: "string" },
+  },
+  required: ["maker", "content"],
+};
+
 export function toIMessage(potentialIMessage: unknown): IMessage {
   return validateSchema(potentialIMessage, IMessageSchema);
+}
+
+export function toIMessageCreationData(
+  potentialIMessageCreationData: unknown
+): IMessageCreationData {
+  return validateSchema(
+    potentialIMessageCreationData,
+    IMessageCreationDataSchema
+  );
 }

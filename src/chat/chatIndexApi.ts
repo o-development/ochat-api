@@ -21,6 +21,7 @@ export async function createChatIndex(chat: IChat): Promise<IChat> {
 }
 
 export async function retrieveChatIndex(chatUri: string): Promise<IChat> {
+  console.log(chatUri);
   const chatCollection = await getChatCollection();
   const chat = await chatCollection.findOne({ uri: chatUri });
   if (chat) {

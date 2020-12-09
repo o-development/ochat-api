@@ -31,17 +31,7 @@ export default async function searchChats(
 
   let profilePromise: Promise<IProfile[]> = Promise.resolve([]);
   if (searchOptions.includeProfiles) {
-    const profileSearchQuery: FilterQuery<IProfile> = {
-      searchable: true,
-    };
-    if (searchOptions.term) {
-      profileSearchQuery.$text = { $search: searchOptions.term };
-    }
-    profilePromise = profileCollection
-      .find(profileSearchQuery)
-      .skip(searchOptions.page)
-      .limit(searchOptions.limit)
-      .toArray();
+    
   }
   const [chats, profiles] = await Promise.all([chatPromise, profilePromise]);
   return {
