@@ -26,6 +26,6 @@ export default async function newChatIndex(
     optionalExternalChatHandler: externalChatHandler,
     fetcher: options.fetcher,
   });
-  await onChatUpdate(indexedChat);
+  await onChatUpdate(indexedChat.uri);
   return indexedChat;
 }

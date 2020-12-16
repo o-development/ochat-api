@@ -93,7 +93,7 @@ export default abstract class AbstractExternalChatHandler {
   ): Promise<void>;
 
   abstract onChatUpdate(
-    callback: (chat: Partial<IChat> & { uri: string }) => Promise<void>
+    callback: (chatUri: string) => Promise<void>
   ): Promise<void>;
 
   abstract runStartupTask(): Promise<void>;

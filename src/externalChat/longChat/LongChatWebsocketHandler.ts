@@ -17,7 +17,7 @@ class LongChatWebSocketHandler extends EventEmitter {
 
   async onChatUpdate(
     chatUri: string,
-    callback: (chat: Partial<IChat> & { uri: string }) => void
+    callback: (chatUri: string) => void
   ): Promise<void> {
     this.on(`chat:${chatUri}`, callback);
   }

@@ -55,9 +55,7 @@ export default class ShortChatExternalChatHandler extends AbstractExternalChatHa
     throw new Error("Method not implemented.");
   }
 
-  onChatUpdate(
-    callback: (chat: Partial<IChat> & { uri: string }) => Promise<void>
-  ): Promise<void> {
+  onChatUpdate(callback: (chatUri: string) => Promise<void>): Promise<void> {
     throw new Error("Method not implemented.");
   }
 

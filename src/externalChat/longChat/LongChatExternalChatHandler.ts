@@ -209,9 +209,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     longChatWebsocketHandler.onNewMessage(this.uri, callback);
   }
 
-  async onChatUpdate(
-    callback: (chat: Partial<IChat> & { uri: string }) => void
-  ): Promise<void> {
+  async onChatUpdate(callback: (chatUri: string) => void): Promise<void> {
     longChatWebsocketHandler.onChatUpdate(this.uri, callback);
   }
 
