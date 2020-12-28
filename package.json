@@ -13,6 +13,10 @@
     "clearMongo": "ts-node src/helpers/clearMongo.ts",
     "clearRedis": "ts-node src/helpers/clearRedis.ts"
   },
+  "engines" : {
+    "node" : ">=15.0.0",
+    "npm": ">=6.14.9"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/o-development/ochat-api.git"
