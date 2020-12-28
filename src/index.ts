@@ -3,22 +3,48 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import authenticationHandler from "./handlers/authentication.handler";
-import indexProfileHandler from "./handlers/indexProfile.handler";
+import handlers from "./httpHandlers/httpHandlers";
+import cronJobs from "./cronJobs/cronJobs";
+import startupJobs from "./startupJobs/startupJobs";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import { createServer } from "http";
+import socketHandler from "./socketHanders/socketHandler";
+import mongoClient from "./util/MongoClient";
 
-const PORT = process.env.PORT || 9000;
+const env = process.env.ENV;
+const clientOrigin = process.env.CLIENT_ORIGIN;
 
-const app = express();
-app.use(cors());
+async function run() {
+  const PORT = process.env.PORT || 9000;
 
-authenticationHandler(app);
+  await mongoClient.connect();
 
-app.get("/", (req, res) => {
-  res.send("API Online.");
-})
+  const app = express();
+  const httpServer = createServer(app);
 
-app.get("/profile/index", indexProfileHandler);
+  app.use(
+    cors({
+      origin: clientOrigin,
+      credentials: true,
+    })
+  );
+  app.use(bodyParser.json());
+  app.use(cookieParser());
 
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+  app.get("/", (req, res) => {
+    res.send("API Online.");
+  });
 
-// app.get("/chat/index", indexChatHandler);
+  handlers.forEach((handler) => handler(app));
+
+  cronJobs.forEach((cronJob) => cronJob());
+
+  console.log("Running startup jobs");
+  await Promise.all(startupJobs.map((startupJob) => startupJob()));
+
+  socketHandler(httpServer);
+
+  httpServer.listen(PORT, () => console.log(`Listening on ${PORT}`));
+}
+run();
