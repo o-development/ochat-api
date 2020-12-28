@@ -12,7 +12,6 @@ import { createServer } from "http";
 import socketHandler from "./socketHanders/socketHandler";
 import mongoClient from "./util/MongoClient";
 
-const env = process.env.ENV;
 const clientOrigin = process.env.CLIENT_ORIGIN;
 
 async function run() {
