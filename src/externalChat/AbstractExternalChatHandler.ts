@@ -1,5 +1,5 @@
 import IFetcher, { guaranteeFetcher } from "../util/IFetcher";
-import IChat, { IChatType, toIChat } from "../chat/IChat";
+import IChat, { IChatParticipant, IChatType, toIChat } from "../chat/IChat";
 import IMessage from "../message/IMessage";
 
 export default abstract class AbstractExternalChatHandler {
@@ -86,14 +86,17 @@ export default abstract class AbstractExternalChatHandler {
 
   abstract updateExternalChat(chat: Partial<IChat>): Promise<void>;
 
-  abstract updateExternalChatParticipants(): Promise<void>;
+  abstract updateExternalChatParticipants(
+    chatParticipants: IChatParticipant[],
+    isPublic: boolean
+  ): Promise<void>;
 
   abstract onNewMessages(
     callback: (chatUri: string, messages: IMessage[]) => Promise<void>
   ): Promise<void>;
 
   abstract onChatUpdate(
-    callback: (chatUri: string) => Promise<void>
+    callback: (chatUri: string, updatedChat?: Partial<IChat>) => Promise<void>
   ): Promise<void>;
 
   abstract runStartupTask(): Promise<void>;

@@ -1,13 +1,12 @@
 import { AnyPointer } from "clownface";
 import AbstractExternalChatHandler from "../AbstractExternalChatHandler";
-import IChat, { IChatType } from "../../chat/IChat";
+import IChat, { IChatParticipant, IChatType } from "../../chat/IChat";
 import {
   author,
   content,
   dateCreatedElements,
   dateCreatedTerms,
   flowMessage,
-  foafImage,
   LongChat,
   maker,
   rdfType,
@@ -15,7 +14,6 @@ import {
   xslDateTime,
 } from "../../util/nodes";
 import {
-  fetchClownfaceNode,
   getBlankClownfaceDataset,
   patchClownfaceDataset,
 } from "../../util/clownFaceUtils";
@@ -29,6 +27,9 @@ import longChatWebsocketHandler from "./LongChatWebsocketHandler";
 import fetchExternalLongChatMessages from "./fetchExternalLongChatMessages";
 import HttpError from "../../util/HttpError";
 import saveExternalChatParticipants from "../util/saveExternalChatParticipants";
+import fetchExternalLongChat, {
+  processClownfaceChatNode,
+} from "./fetchExternalLongChat";
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   constructor(
@@ -60,25 +61,18 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     const instance = new LongChatExternalChatHandler(url, IChatType.LongChat, {
       fetcher: options?.fetcher,
     });
-    instance.processClownfaceChatNode(node);
+    instance.chat = {
+      ...instance.chat,
+      ...processClownfaceChatNode(node),
+    };
     return instance;
   }
 
-  private processClownfaceChatNode(node: AnyPointer): void {
+  async fetchExternalChat(): Promise<void> {
     this.chat = {
       ...this.chat,
-      name: node.out(title).value || "",
-      images: node.out(foafImage).values,
+      ...(await fetchExternalLongChat(this.uri, { fetcher: this.fetcher })),
     };
-  }
-
-  async fetchExternalChat(): Promise<void> {
-    const chatNode = await fetchClownfaceNode(
-      this.uri,
-      [LongChat],
-      this.fetcher
-    );
-    this.processClownfaceChatNode(chatNode);
   }
 
   async fetchExternalChatParticipants(): Promise<void> {
@@ -145,7 +139,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
       .addOut(content, literal(message.content))
       .addOut(dateCreatedTerms, literal(message.timeCreated, xslDateTime))
       .addIn(flowMessage, namedNode(this.uri));
-    await patchClownfaceDataset(messagePageUri, ds, this.fetcher);
+    await patchClownfaceDataset(messagePageUri, ds, { fetcher: this.fetcher });
     await addToCache(this.uri, messagePageUri);
     return {
       ...message,
@@ -154,7 +148,6 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async createExternalChat(chat: IChat): Promise<void> {
-    const chatRoot = getContainerUri(this.uri);
     const administrator = chat.participants.find(
       (participant) => participant.isAdmin
     );
@@ -175,9 +168,33 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
       )
       .addOut(title, chat.name);
     // Save Index
-    await patchClownfaceDataset(this.uri, ds, this.fetcher);
+    await patchClownfaceDataset(this.uri, ds, { fetcher: this.fetcher });
     // Save Auth
-    await saveExternalChatParticipants(chatRoot, chat.participants, {
+    await this.updateExternalChatParticipants(chat.participants, chat.isPublic);
+  }
+
+  async updateExternalChat(newChat: Partial<IChat>): Promise<void> {
+    console.log(newChat);
+    if (newChat.name) {
+      await this.fetchExternalChatIfNedded();
+      const deleteData = getBlankClownfaceDataset();
+      const addData = getBlankClownfaceDataset();
+      deleteData.namedNode(this.uri).addOut(title, this.chat?.name || "");
+      addData.namedNode(this.uri).addOut(title, newChat.name);
+      await patchClownfaceDataset(this.uri, addData, {
+        fetcher: this.fetcher,
+        cfDatasetToRemove: deleteData,
+      });
+    }
+  }
+
+  async updateExternalChatParticipants(
+    participants: IChatParticipant[],
+    isPublic: boolean
+  ): Promise<void> {
+    const chatRoot = getContainerUri(this.uri);
+    console.log(participants);
+    await saveExternalChatParticipants(chatRoot, participants, {
       fetcher: this.fetcher,
       isAdmin: {
         read: true,
@@ -191,16 +208,8 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
         append: true,
         control: false,
       },
-      isPublic: chat.isPublic,
+      isPublic: isPublic,
     });
-  }
-
-  updateExternalChat(chat: Partial<IChat>): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
-  updateExternalChatParticipants(): Promise<void> {
-    throw new Error("Method not implemented.");
   }
 
   async onNewMessages(
@@ -209,7 +218,9 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     longChatWebsocketHandler.onNewMessage(this.uri, callback);
   }
 
-  async onChatUpdate(callback: (chatUri: string) => void): Promise<void> {
+  async onChatUpdate(
+    callback: (chatUri: string, updatedChat?: Partial<IChat>) => void
+  ): Promise<void> {
     longChatWebsocketHandler.onChatUpdate(this.uri, callback);
   }
 

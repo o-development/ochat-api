@@ -1,8 +1,9 @@
 import IFetcher from "../util/IFetcher";
-import { getChatCollection, getProfileCollection } from "../util/MongoClient";
+import { getChatCollection } from "../util/MongoClient";
 import IChat from "./IChat";
-import IProfile from "src/profile/IProfile";
+import IProfile from "../profile/IProfile";
 import { FilterQuery } from "mongodb";
+import searchProfiles from "../profile/searchProfiles";
 
 export default async function searchChats(
   searchOptions: {
@@ -14,7 +15,6 @@ export default async function searchChats(
   options: { fetcher?: IFetcher; webId: string }
 ): Promise<{ chats: IChat[]; profiles?: IProfile[] }> {
   const chatCollection = await getChatCollection();
-  const profileCollection = await getProfileCollection();
 
   const chatSearchQuery: FilterQuery<IChat> = {
     "participants.webId": options.webId,
@@ -30,8 +30,17 @@ export default async function searchChats(
     .toArray();
 
   let profilePromise: Promise<IProfile[]> = Promise.resolve([]);
-  if (searchOptions.includeProfiles) {
-    
+  if (searchOptions.includeProfiles && searchOptions.term) {
+    profilePromise = searchProfiles(
+      {
+        term: searchOptions.term,
+        limit: searchOptions.limit,
+        page: searchOptions.page,
+      },
+      {
+        fetcher: options.fetcher,
+      }
+    );
   }
   const [chats, profiles] = await Promise.all([chatPromise, profilePromise]);
   return {
