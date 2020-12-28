@@ -1,11 +1,12 @@
 import { EventEmitter } from "events";
-import IFetcher from "src/util/IFetcher";
-import IChat from "../../chat/IChat";
+import IFetcher from "../../util/IFetcher";
 import IMessage from "../../message/IMessage";
 import getContainerUri from "../util/getContainerUri";
 import { catchUpUriCache } from "./LongChatCache";
 import { subscribeToUri } from "../../util/SolidWebSocketManager";
 import fetchExternalLongChatMessages from "./fetchExternalLongChatMessages";
+import fetchExternalLongChat from "./fetchExternalLongChat";
+import IChat from "../../chat/IChat";
 
 class LongChatWebSocketHandler extends EventEmitter {
   onNewMessage(
@@ -17,7 +18,7 @@ class LongChatWebSocketHandler extends EventEmitter {
 
   async onChatUpdate(
     chatUri: string,
-    callback: (chatUri: string) => void
+    callback: (chatUri: string, updatedChat: Partial<IChat>) => void
   ): Promise<void> {
     this.on(`chat:${chatUri}`, callback);
   }
@@ -131,7 +132,10 @@ class LongChatWebSocketHandler extends EventEmitter {
     chatUri: string,
     options: { fetcher?: IFetcher }
   ) {
-    throw new Error("Not Implemented");
+    const newChat = await fetchExternalLongChat(chatUri, {
+      fetcher: options.fetcher,
+    });
+    this.emit(`chat:${chatUri}`, chatUri, newChat);
   }
 
   private async handleMessageUpdate(

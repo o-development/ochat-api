@@ -1,6 +1,6 @@
 import { MongoClient, Collection } from "mongodb";
-import IChat from "src/chat/IChat";
-import IProfile from "src/profile/IProfile";
+import IChat from "../chat/IChat";
+import IProfile from "../profile/IProfile";
 
 const endpoint = process.env.MONGO_ENDPOINT;
 const db = process.env.MONGO_DB;

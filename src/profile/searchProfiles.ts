@@ -13,7 +13,7 @@ export default async function searchProfiles(
     page: number;
     limit: number;
   },
-  options?: { fetcher: IFetcher }
+  options?: { fetcher?: IFetcher }
 ): Promise<IProfile[]> {
   const profileCollection: Collection<IProfile> = await getProfileCollection();
   const searchTerm = searchOptions.term;

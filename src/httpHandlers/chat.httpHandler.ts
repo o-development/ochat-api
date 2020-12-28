@@ -73,10 +73,11 @@ const chatHandler: IHttpHandler = (app) => {
   // Update Chat Index
   app.put("/chat/:chat_url", async (req, res) => {
     const authSession = getLoggedInAuthSession(req);
-    const chatUri = toUri(req.params.chat_uri);
+    const chatUri = toUri(req.params.chat_url);
     const chatData = toIChatPartial(req.body);
     const savedChat = await updateChatIndex(chatUri, chatData, {
       webId: authSession.info.webId,
+      fetcher: authSession.fetch.bind(authSession),
     });
     res.status(200).send(savedChat);
   });

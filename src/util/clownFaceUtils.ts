@@ -106,11 +106,9 @@ export function getBlankClownfaceDataset(): Clownface {
   return cf({ dataset: Dataset() });
 }
 
-export async function patchClownfaceDataset(
-  uri: string,
-  cfDataset: Clownface,
-  fetcher?: IFetcher
-): Promise<void> {
+export async function clownfaceDatasetToString(
+  cfDataset: Clownface
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const writer = new Writer({ format: "N-Triples" });
     for (const quad of cfDataset.dataset) {
@@ -118,20 +116,43 @@ export async function patchClownfaceDataset(
     }
     writer.end(async (error, parsedString: string) => {
       if (error) {
-        reject(error);
+        return reject(error);
       }
-      const trueFetcher = guaranteeFetcher(fetcher);
-      const response = await trueFetcher(uri, {
-        method: "PATCH",
-        body: `INSERT DATA { ${parsedString} }`,
-        headers: {
-          "content-type": "application/sparql-update",
-        },
-      });
-      if (response.status !== 200) {
-        reject(new HttpError(`Could not write to pod at ${uri}`, 500));
-      }
-      resolve();
+      return resolve(parsedString);
     });
   });
+}
+
+export async function patchClownfaceDataset(
+  uri: string,
+  cfDataset: Clownface,
+  options?: {
+    fetcher?: IFetcher;
+    cfDatasetToRemove?: Clownface;
+  }
+): Promise<void> {
+  const addTripleString = await clownfaceDatasetToString(cfDataset);
+  const removeTripleString = options?.cfDatasetToRemove
+    ? await clownfaceDatasetToString(options.cfDatasetToRemove)
+    : undefined;
+
+  const trueFetcher = guaranteeFetcher(options?.fetcher);
+  console.log(
+    `${
+      removeTripleString ? `DELETE DATA { ${removeTripleString} }; ` : ""
+    }INSERT DATA { ${addTripleString} }`
+  );
+  const response = await trueFetcher(uri, {
+    method: "PATCH",
+    body: `${
+      removeTripleString ? `DELETE DATA { ${removeTripleString} }; ` : ""
+    }INSERT DATA { ${addTripleString} }`,
+    headers: {
+      "content-type": "application/sparql-update",
+    },
+  });
+  if (response.status !== 200) {
+    console.log(await response.text());
+    throw new HttpError(`Could not write to pod at ${uri}`, 500);
+  }
 }
