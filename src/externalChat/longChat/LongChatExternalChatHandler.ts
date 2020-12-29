@@ -21,7 +21,7 @@ import IFetcher from "../../util/IFetcher";
 import IMessage from "../../message/IMessage";
 import { namedNode, literal } from "@rdfjs/dataset";
 import fetchExternalChatParticipants from "../util/fetchExternalChatParticipants";
-import { addToCache, getLongChatMessageUriFromCache } from "./LongChatCache";
+import { addToCache, getLongChatMessageUriFromCache } from "./longChatCache";
 import getContainerUri from "../util/getContainerUri";
 import longChatWebsocketHandler from "./LongChatWebsocketHandler";
 import fetchExternalLongChatMessages from "./fetchExternalLongChatMessages";

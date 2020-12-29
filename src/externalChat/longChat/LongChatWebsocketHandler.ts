@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import IFetcher from "../../util/IFetcher";
 import IMessage from "../../message/IMessage";
 import getContainerUri from "../util/getContainerUri";
-import { catchUpUriCache } from "./LongChatCache";
+import { catchUpUriCache } from "./longChatCache";
 import { subscribeToUri } from "../../util/SolidWebSocketManager";
 import fetchExternalLongChatMessages from "./fetchExternalLongChatMessages";
 import fetchExternalLongChat from "./fetchExternalLongChat";
