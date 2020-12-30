@@ -27,6 +27,7 @@ const authenticationHandler: IHttpHandler = (app) => {
     "/auth",
     session({
       secret: sessionSecret,
+      proxy: true,
       cookie: { secure: env !== "dev" },
       resave: false,
       saveUninitialized: false,
