@@ -22,6 +22,7 @@ export async function createProfileIndex(profile: IProfile): Promise<IProfile> {
 export async function retrieveProfileIndex(url: string): Promise<IProfile> {
   const profileCollection = await getProfileCollection();
   const profile = await profileCollection.findOne({ webId: url });
+  console.log(profile);
   if (profile) {
     return toProfile(profile);
   } else {

@@ -40,7 +40,7 @@ async function run() {
   cronJobs.forEach((cronJob) => cronJob());
 
   console.log("Running startup jobs");
-  await Promise.all(startupJobs.map((startupJob) => startupJob()));
+  // await Promise.all(startupJobs.map((startupJob) => startupJob()));
 
   socketHandler(httpServer);
 

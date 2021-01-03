@@ -30,7 +30,7 @@ export default async function newChat(
     indexedChat.participants.find((p) => p.webId === options.webId)?.name ||
     options.webId;
   await createNewChatMessage(
-    chatData.uri,
+    indexedChat.uri,
     {
       maker: options.webId,
       content: `${creatorsName} created "${chatData.name}"`,

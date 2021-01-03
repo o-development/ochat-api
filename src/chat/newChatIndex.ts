@@ -21,6 +21,7 @@ export default async function newChatIndex(
     }));
   const chat = await externalChatHandler.getChat();
   const indexedChat = await createChatIndex(chat);
+  console.log("CREATED INDEXED CHAT");
   await externalChatHandler.runStartupTask();
   await registerChatListeners(chatUri, {
     optionalExternalChatHandler: externalChatHandler,
