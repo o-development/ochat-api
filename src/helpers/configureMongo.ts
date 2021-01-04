@@ -15,7 +15,6 @@ async function run() {
     },
     { unique: true }
   );
-  console.log("profile index made");
   await chatCollection.createIndex({
     "$**": "text",
   });
@@ -25,6 +24,5 @@ async function run() {
     },
     { unique: true }
   );
-  console.log("chat index made");
 }
 run();

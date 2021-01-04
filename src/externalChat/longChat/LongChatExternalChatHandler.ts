@@ -174,7 +174,6 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async updateExternalChat(newChat: Partial<IChat>): Promise<void> {
-    console.log(newChat);
     if (newChat.name) {
       await this.fetchExternalChatIfNedded();
       const deleteData = getBlankClownfaceDataset();
@@ -193,7 +192,6 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     isPublic: boolean
   ): Promise<void> {
     const chatRoot = getContainerUri(this.uri);
-    console.log(participants);
     await saveExternalChatParticipants(chatRoot, participants, {
       fetcher: this.fetcher,
       isAdmin: {
