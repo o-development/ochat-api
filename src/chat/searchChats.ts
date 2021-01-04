@@ -22,10 +22,13 @@ export default async function searchChats(
   if (searchOptions.term) {
     chatSearchQuery.$text = { $search: searchOptions.term };
   }
+  console.log("INFO");
+  console.log(searchOptions.page);
+  console.log(searchOptions.limit);
   const chatPromise: Promise<IChat[]> = chatCollection
     .find(chatSearchQuery)
     .sort({ "lastMessage.timeCreated": -1 })
-    .skip(searchOptions.page)
+    .skip(searchOptions.page * searchOptions.limit)
     .limit(searchOptions.limit)
     .toArray();
 

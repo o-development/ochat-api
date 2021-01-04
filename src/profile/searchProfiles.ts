@@ -40,7 +40,7 @@ export default async function searchProfiles(
     };
     const profiles = await profileCollection
       .find(profileSearchQuery)
-      .skip(searchOptions.page)
+      .skip(searchOptions.page * searchOptions.limit)
       .limit(searchOptions.limit)
       .toArray();
     return profiles.map((profile) => toProfile(profile));
