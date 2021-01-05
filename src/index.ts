@@ -22,6 +22,7 @@ async function run() {
   const app = express();
   const httpServer = createServer(app);
 
+  app.enable('trust proxy');
   app.use(
     cors({
       origin: clientOrigin,
