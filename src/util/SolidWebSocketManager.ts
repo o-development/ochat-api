@@ -16,7 +16,6 @@ export async function subscribeToUri(
     clearOtherSubscriptionsToThisUriFirst?: boolean;
   }
 ): Promise<void> {
-  console.log(`Subscribed to ${uri}`);
   // Discover WebSocket URI
   const trueFetcher = guaranteeFetcher(options?.fetcher);
   const discoveryResult = await trueFetcher(uri);

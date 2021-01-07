@@ -19,7 +19,7 @@ if (!sessionSecret) {
 }
 
 function isFromWebClient(req: Request): boolean {
-  return !!req.session && new URL(req.session.redirect).origin === clientOrigin;
+  return !!req.session && !!req.session.redirect && new URL(req.session.redirect).origin === clientOrigin;
 }
 
 const authenticationHandler: IHttpHandler = (app) => {
@@ -38,7 +38,7 @@ const authenticationHandler: IHttpHandler = (app) => {
     const { redirect, issuer } = req.query;
 
     const session = await sessionManager.getSession(req.sessionID);
-    if (req.session) {
+    if (req.session && typeof redirect === 'string') {
       req.session.redirect = redirect;
     }
     await session.login({
