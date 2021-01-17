@@ -3,6 +3,7 @@ import { retrieveChatIndex } from "../chat/chatIndexApi";
 import redisClient from "../util/RedisConnection";
 import { sendToSocketByWebId } from "../socketHanders/socketHandler";
 import updateChatIndex from "../chat/updateChatIndex";
+import sendNotifications from '../notificationSetting/sendNotifications';
 
 export function getRedisChatMessageKey(
   chatUri: string,
@@ -46,11 +47,22 @@ export default async function onNewChatMessages(
     sendToSocketByWebId(webId, "message", chatUri, messagesToPost);
   });
 
-  // Determine who a push notification should be sent to
-
-  // Construct Push notification
-
-  // Send Push Notification
+  // Send Notification
+  await Promise.all(
+    messagesToPost.map(async (message) => {
+      await Promise.all(
+        chat.participants
+          .filter((participant) => participant.webId !== message.maker)
+          .map(async (participant) => {
+            await sendNotifications(participant.webId, {
+              title: participant.name || participant.webId,
+              text: message.content,
+              chatUri: chat.uri,
+            });
+          })
+      );
+    })
+  );
 
   // Update Chat with new message
   const mostRecentMessage = messages.sort((a, b) => {
