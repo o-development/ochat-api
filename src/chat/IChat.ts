@@ -30,7 +30,7 @@ export const IChatPartialSchema: Schema = {
   properties: {
     uri: { type: "string", format: "uri" },
     type: { type: "string", enum: ["LongChat", "ShortChat"] },
-    name: { type: "string" },
+    name: { type: ["string", "null"] },
     images: {
       type: "array",
       items: { type: "string", format: "uri" },
@@ -42,7 +42,7 @@ export const IChatPartialSchema: Schema = {
         properties: {
           name: { type: "string" },
           webId: { type: "string", format: "uri" },
-          image: { type: "string", format: "uri" },
+          image: { type: ["string", "null"], format: "uri" },
           isAdmin: { type: "boolean" },
         },
       },

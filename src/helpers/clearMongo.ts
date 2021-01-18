@@ -9,13 +9,13 @@ async function run() {
   try {
     await profileCollection.drop();
   } catch (err) {
-    console.log(err);
+    console.info(err);
   }
   try {
     await chatCollection.drop();
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
-  console.log("dropped");
+  console.info("dropped");
 }
 run();

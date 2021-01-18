@@ -4,6 +4,7 @@ dotenv.config();
 import RedisClient from "../util/RedisConnection";
 import { getAuthKey, getAuthMapKey } from "../util/AuthSessionManager";
 import { getLongChatKey } from "../externalChat/longChat/longChatCache";
+import { getWebNotificationSubscriptionStorageKey } from '../notificationSetting/registerWebNotificationSubscription';
 
 /**
  * Helper Functions
@@ -23,14 +24,14 @@ function deleteKeysByPattern(key: string): void {
     }
   });
   stream.on("end", function () {
-    console.log("Deleted Keys");
+    console.info("Deleted Keys");
   });
 }
 
 switch (process.argv[2]) {
   case "all":
     RedisClient.flushdb(function (err, succeeded) {
-      console.log(succeeded); // will be true if successfull
+      console.info(succeeded); // will be true if successfull
     });
     break;
   case "auth":
@@ -39,6 +40,9 @@ switch (process.argv[2]) {
     break;
   case "longChat":
     deleteKeysByPattern(getLongChatKey("*"));
+    break;
+  case "webNotificationSubscription":
+    deleteKeysByPattern(getWebNotificationSubscriptionStorageKey("*"));
     break;
   default:
     throw new Error("Must provide a clear type.");

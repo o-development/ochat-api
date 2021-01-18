@@ -25,7 +25,7 @@ export default async function searchChats(
   const chatPromise: Promise<IChat[]> = chatCollection
     .find(chatSearchQuery)
     .sort({ "lastMessage.timeCreated": -1 })
-    .skip(searchOptions.page)
+    .skip(searchOptions.page * searchOptions.limit)
     .limit(searchOptions.limit)
     .toArray();
 

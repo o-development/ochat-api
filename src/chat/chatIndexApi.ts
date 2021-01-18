@@ -1,7 +1,6 @@
 import HttpError from "../util/HttpError";
 import { getChatCollection } from "../util/MongoClient";
 import IChat, { toIChat } from "./IChat";
-import { ObjectId } from "mongodb";
 
 export async function createChatIndex(chat: IChat): Promise<IChat> {
   const chatCollection = await getChatCollection();

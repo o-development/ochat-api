@@ -14,8 +14,8 @@ const IProfileSchema: Schema = {
   properties: {
     webId: { type: "string", format: "uri" },
     defaultStorageLocation: { type: "string", format: "uri" },
-    image: { type: "string", format: "uri" },
-    name: { type: "string" },
+    image: { type: ["string", "null"], format: "uri" },
+    name: { type: ["string", "null"] },
     searchable: { type: "boolean" },
   },
   required: ["webId", "defaultStorageLocation"],
