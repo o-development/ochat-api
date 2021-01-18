@@ -3,7 +3,7 @@ import { retrieveChatIndex } from "../chat/chatIndexApi";
 import redisClient from "../util/RedisConnection";
 import { sendToSocketByWebId } from "../socketHanders/socketHandler";
 import updateChatIndex from "../chat/updateChatIndex";
-import sendNotifications from '../notificationSetting/sendNotifications';
+import sendNotifications from '../notification/sendNotifications';
 
 export function getRedisChatMessageKey(
   chatUri: string,
