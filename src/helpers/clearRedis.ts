@@ -4,7 +4,7 @@ dotenv.config();
 import RedisClient from "../util/RedisConnection";
 import { getAuthKey, getAuthMapKey } from "../util/AuthSessionManager";
 import { getLongChatKey } from "../externalChat/longChat/longChatCache";
-import { getWebNotificationSubscriptionStorageKey } from '../notificationSetting/registerWebNotificationSubscription';
+import { getNotificationSubscriptionStorageKey } from "../notification/notificationSubscriptionApi";
 
 /**
  * Helper Functions
@@ -41,8 +41,8 @@ switch (process.argv[2]) {
   case "longChat":
     deleteKeysByPattern(getLongChatKey("*"));
     break;
-  case "webNotificationSubscription":
-    deleteKeysByPattern(getWebNotificationSubscriptionStorageKey("*"));
+  case "notificationSubscription":
+    deleteKeysByPattern(getNotificationSubscriptionStorageKey("*"));
     break;
   default:
     throw new Error("Must provide a clear type.");
