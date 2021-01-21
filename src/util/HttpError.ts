@@ -1,6 +1,6 @@
 export default class HttpError extends Error {
   status: number;
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
   constructor(
     message: string,
     status: number,
