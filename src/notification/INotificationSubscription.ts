@@ -41,7 +41,7 @@ export const INotificationSubscriptionSchema: Schema = {
           type: "object",
           properties: {
             endpoint: { type: "string", format: "uri" },
-            expirationTime: { type: "string" },
+            expirationTime: { type: [ "string", "null" ] },
             keys: {
               type: "object",
               properties: {
