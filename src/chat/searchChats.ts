@@ -16,11 +16,19 @@ export default async function searchChats(
 ): Promise<{ chats: IChat[]; profiles?: IProfile[] }> {
   const chatCollection = await getChatCollection();
 
-  const chatSearchQuery: FilterQuery<IChat> = {
+  let chatSearchQuery: FilterQuery<IChat> = {
     "participants.webId": options.webId,
   };
   if (searchOptions.term) {
-    chatSearchQuery.$text = { $search: searchOptions.term };
+    chatSearchQuery = {
+      $or: [
+        chatSearchQuery,
+        {
+          isPublic: true,
+        }
+      ],
+      $text: { $search: searchOptions.term }
+    }
   }
   const chatPromise: Promise<IChat[]> = chatCollection
     .find(chatSearchQuery)

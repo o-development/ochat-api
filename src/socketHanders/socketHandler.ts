@@ -8,14 +8,28 @@ import { sessionManager } from "../util/AuthSessionManager";
 const clientOrigin = process.env.CLIENT_ORIGIN;
 
 // Sockets is a map of webIds to a list of sockets
-export const sockets: Record<string, Socket[]> = {};
+export const socketsByWebId: Record<string, Socket[]> = {};
+export const socketsByPublicChatUri: Record<string, Socket[]> = {};
 
 export function sendToSocketByWebId(
   webId: string,
   event: string,
   ...data: unknown[]
 ): void {
-  const socketsToSend = sockets[webId];
+  const socketsToSend = socketsByWebId[webId];
+  if (socketsToSend) {
+    socketsToSend.forEach((socketToSend) => {
+      socketToSend.emit(event, ...data);
+    });
+  }
+}
+
+export function sendToSocketByPublicChatUri(
+  publicChatUri: string,
+  event: string,
+  ...data: unknown[]
+): void {
+  const socketsToSend = socketsByPublicChatUri[publicChatUri];
   if (socketsToSend) {
     socketsToSend.forEach((socketToSend) => {
       socketToSend.emit(event, ...data);
@@ -52,22 +66,39 @@ export default function socketHandler(httpServer: HttpServer): void {
 
         // Add to the sockets list
         const webId = authSession.info.webId;
-        if (sockets[webId]) {
-          sockets[webId].push(socket);
+        if (socketsByWebId[webId]) {
+          socketsByWebId[webId].push(socket);
         } else {
-          sockets[webId] = [socket];
+          socketsByWebId[webId] = [socket];
         }
         // Clean up
         socket.on("close", () => {
-          const socketIndex = sockets[webId].indexOf(socket);
+          const socketIndex = socketsByWebId[webId].indexOf(socket);
           if (socketIndex > -1) {
-            sockets[webId].splice(socketIndex, 1);
+            socketsByWebId[webId].splice(socketIndex, 1);
           }
         });
       }
     } catch (err) {
-      // If it's not authenticated disconnect
-      socket.disconnect(true);
+      // If it's not authenticated, do nothing
     }
+
+    // Let the socket subscribe to a public chat, even if not authenticated
+    socket.on('subscribeToPublicChat', (data) => {
+      const uri = data.uri;
+      if (socketsByPublicChatUri[uri]) {
+        socketsByPublicChatUri[uri].push(socket);
+      } else {
+        socketsByPublicChatUri[uri] = [socket];
+      }
+    });
+
+    socket.on('unsubscribeFromPublicChat', (data) => {
+      const uri = data.uri;
+      const socketIndex = socketsByPublicChatUri[uri].indexOf(socket);
+      if (socketIndex > -1) {
+        socketsByPublicChatUri[uri].splice(socketIndex, 1);
+      }
+    });
   });
 }

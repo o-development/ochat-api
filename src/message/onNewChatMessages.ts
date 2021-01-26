@@ -1,7 +1,7 @@
 import IMessage from "./IMessage";
 import { retrieveChatIndex } from "../chat/chatIndexApi";
 import redisClient from "../util/RedisConnection";
-import { sendToSocketByWebId } from "../socketHanders/socketHandler";
+import { sendToSocketByPublicChatUri, sendToSocketByWebId } from "../socketHanders/socketHandler";
 import updateChatIndex from "../chat/updateChatIndex";
 import sendNotifications from "../notification/sendNotifications";
 
@@ -46,6 +46,10 @@ export default async function onNewChatMessages(
   chatParticipantWebIds.forEach((webId) => {
     sendToSocketByWebId(webId, "message", chatUri, messagesToPost);
   });
+
+  if (chat.isPublic) {
+    sendToSocketByPublicChatUri(chatUri, "message", chatUri, messagesToPost);
+  }
 
   // Send Notification
   await Promise.all(
