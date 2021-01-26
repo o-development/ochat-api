@@ -9,7 +9,10 @@ import externalChatHanderFactory from "../externalChat/externalChatHandlerFactor
 export default async function updateChatIndex(
   chatUri: string,
   chatData: Partial<IChat>,
-  options: { webId: string; fetcher?: IFetcher }
+  options: {
+    webId: string;
+    fetcher?: IFetcher;
+  }
 ): Promise<void> {
   const chatCollection = await getChatCollection();
   const currentChat = await retrieveChatIndex(chatUri);
@@ -32,7 +35,7 @@ export default async function updateChatIndex(
         403
       );
     }
-    externalChatHandler.updateExternalChatParticipants(
+    await externalChatHandler.updateExternalChatParticipants(
       chatData.participants || currentChat.participants,
       chatData.isPublic || currentChat.isPublic
     );
@@ -45,18 +48,12 @@ export default async function updateChatIndex(
         403
       );
     }
-    externalChatHandler.updateExternalChat(chatData);
+    await externalChatHandler.updateExternalChat(chatData);
   }
   try {
     await chatCollection.updateOne(
       {
         uri: chatUri,
-        participants: {
-          $elemMatch: {
-            webId: options.webId,
-            isAdmin: true,
-          },
-        },
       },
       {
         $set: {
