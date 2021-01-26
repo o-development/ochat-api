@@ -9,11 +9,13 @@ import IFetcher from "src/util/IFetcher";
 const messageHandler: IHttpHandler = (app) => {
   app.get("/message/:chat_uri", async (req, res) => {
     let fetcher: IFetcher | undefined;
+    let webId: string;
     try {
       const authSession = getLoggedInAuthSession(req);
-      fetcher = authSession.fetch.bind(authSession)
+      fetcher = authSession.fetch.bind(authSession);
+      webId = authSession.info.webId;
     } catch {
-      // Do nothing
+      webId = 'public';
     }
     const chatUri = toUri(req.params.chat_uri);
     let previousPageId: string | undefined = undefined;
@@ -23,8 +25,10 @@ const messageHandler: IHttpHandler = (app) => {
     ) {
       previousPageId = req.query.previous_page_id;
     }
-    const messages = await getChatMessages(chatUri, previousPageId, {
+    const messages = await getChatMessages(chatUri, {
+      previousPageId,
       fetcher,
+      webId, 
     });
     res.status(200).send(messages);
   });
