@@ -52,10 +52,16 @@ const chatHandler: IHttpHandler = (app) => {
 
   // Get Chat Index
   app.get("/chat/:chat_uri", async (req, res) => {
-    const authSession = getLoggedInAuthSession(req);
+    let webId: string;
+    try {
+      const autSession = getLoggedInAuthSession(req);
+      webId = autSession.info.webId;
+    } catch {
+      webId = 'public';
+    }
     const chatUri = toUri(req.params.chat_uri);
     const chat = await getChatIndex(chatUri, {
-      webId: authSession.info.webId,
+      webId,
     });
     res.status(200).send(chat);
   });

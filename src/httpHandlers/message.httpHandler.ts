@@ -4,10 +4,17 @@ import IHttpHandler from "./IHttpHandler";
 import getChatMessages from "../message/getChatMessages";
 import { toIMessageCreationData } from "../message/IMessage";
 import createChatMessage from "../message/createChatMessage";
+import IFetcher from "src/util/IFetcher";
 
 const messageHandler: IHttpHandler = (app) => {
   app.get("/message/:chat_uri", async (req, res) => {
-    const authSession = getLoggedInAuthSession(req);
+    let fetcher: IFetcher | undefined;
+    try {
+      const authSession = getLoggedInAuthSession(req);
+      fetcher = authSession.fetch.bind(authSession)
+    } catch {
+      // Do nothing
+    }
     const chatUri = toUri(req.params.chat_uri);
     let previousPageId: string | undefined = undefined;
     if (
@@ -17,7 +24,7 @@ const messageHandler: IHttpHandler = (app) => {
       previousPageId = req.query.previous_page_id;
     }
     const messages = await getChatMessages(chatUri, previousPageId, {
-      fetcher: authSession.fetch.bind(authSession),
+      fetcher,
     });
     res.status(200).send(messages);
   });
