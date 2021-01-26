@@ -19,25 +19,8 @@ export default async function createNewChatMessage(
   }
   // Check if the user is allowed to create the message
   const chat = await getChatIndex(chatUri, { webId: options.webId });
-
-  // If the chat is public and the user is not a participant, add them
-  if (!chat.participants.some(p => p.webId === options.webId) && chat.isPublic) {
-    const userProfile = await retrieveProfileIndex(options.webId);
-    const adminAuthSession = await getAdministratorAuthSessionForChat(chat);
-    await updateChatIndex(chatUri, {
-      participants: [
-        ...chat.participants,
-        {
-          name: userProfile.name,
-          webId: options.webId,
-          image: userProfile.image,
-          isAdmin: false
-        }
-      ]
-    }, {
-      webId: adminAuthSession.info.webId,
-      fetcher: adminAuthSession.fetch.bind(adminAuthSession),
-    });
+  if (!chat.participants.some(p => p.webId === options.webId)) {
+    throw new HttpError('You are not a participant of this chat', 403);
   }
 
   // Construct message
