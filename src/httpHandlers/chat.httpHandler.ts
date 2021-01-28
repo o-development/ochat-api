@@ -8,6 +8,7 @@ import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import newChatIndex from "../chat/newChatIndex";
 import updateChatIndex from "../chat/updateChatIndex";
 import getChatIndex from "../chat/getChatIndex";
+import addParticipantToPublicChat from '../chat/addParticipantToPublicChat';
 
 const chatHandler: IHttpHandler = (app) => {
   // New Chat
@@ -51,10 +52,16 @@ const chatHandler: IHttpHandler = (app) => {
 
   // Get Chat Index
   app.get("/chat/:chat_uri", async (req, res) => {
-    const authSession = getLoggedInAuthSession(req);
+    let webId: string;
+    try {
+      const autSession = getLoggedInAuthSession(req);
+      webId = autSession.info.webId;
+    } catch {
+      webId = 'public';
+    }
     const chatUri = toUri(req.params.chat_uri);
     const chat = await getChatIndex(chatUri, {
-      webId: authSession.info.webId,
+      webId,
     });
     res.status(200).send(chat);
   });
@@ -81,6 +88,13 @@ const chatHandler: IHttpHandler = (app) => {
     });
     res.status(200).send(savedChat);
   });
+
+  app.put("/chat/:chat_url/authenticated", async (req, res) => {
+    const authSession = getLoggedInAuthSession(req);
+    const chatUri = toUri(req.params.chat_url);
+    await addParticipantToPublicChat(chatUri, authSession.info.webId);
+    res.status(200).send();
+  })
 };
 
 export default chatHandler;

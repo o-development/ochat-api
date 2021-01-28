@@ -9,8 +9,16 @@ export default async function getChatIndex(
 ): Promise<IChat> {
   const chatCollection = await getChatCollection();
   const chat = await chatCollection.findOne({
-    uri: chatUri,
-    "participants.webId": options.webId,
+    $or: [
+      {
+        uri: chatUri,
+        "participants.webId": options.webId,
+      },
+      {
+        uri: chatUri,
+        isPublic: true
+      },
+    ],
   });
   if (chat) {
     return toIChat(chat);

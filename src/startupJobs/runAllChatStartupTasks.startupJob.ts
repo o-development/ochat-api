@@ -7,6 +7,7 @@ import { Session } from "@inrupt/solid-auth-fetcher";
 import registerChatListeners from "../chat/registerChatListeners";
 import HttpError from "../util/HttpError";
 import { getChatCollection } from "../util/MongoClient";
+import getAdministratorAuthSessionForChat from "../util/getAdministratorAuthSessionForChat";
 
 const runAllChatStartupTasks: IStartupJob = async () => {
   const chatCollection = await getChatCollection();
@@ -15,23 +16,8 @@ const runAllChatStartupTasks: IStartupJob = async () => {
     try {
       const chat = toIChat(possibleChat);
       // Get a fetcher for an administrator
-      const administratorWebIds = chat.participants
-        .filter((participant) => participant.isAdmin)
-        .map((participant) => participant.webId);
-      const validAuthSessions = (
-        await Promise.all(
-          administratorWebIds.map(async (webId) => {
-            return await getSessionByWebId(webId);
-          })
-        )
-      ).filter((session): boolean => session != undefined) as Session[];
-      if (validAuthSessions.length < 1) {
-        throw new HttpError(`No valid auth session for ${chat.uri}`, 403, {
-          chatUri: chat.uri,
-          uri: chat.uri,
-        });
-      }
-      const fetcher = validAuthSessions[0].fetch.bind(validAuthSessions[0]);
+      const adminAuthSession = await getAdministratorAuthSessionForChat(chat);
+      const fetcher = adminAuthSession.fetch.bind(adminAuthSession);
       // Get the ExternalChatHandler
       const externalChatHandler = await externalChatHanderFactory(
         chat.uri,

@@ -5,7 +5,6 @@ import express from "express";
 import cors from "cors";
 import handlers from "./httpHandlers/httpHandlers";
 import cronJobs from "./cronJobs/cronJobs";
-import startupJobs from "./startupJobs/startupJobs";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
@@ -22,7 +21,7 @@ async function run() {
   const app = express();
   const httpServer = createServer(app);
 
-  app.enable('trust proxy');
+  app.enable("trust proxy");
   app.use(
     cors({
       origin: clientOrigin,

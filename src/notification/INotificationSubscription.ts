@@ -1,5 +1,4 @@
 import { Schema } from "jsonschema";
-import IMessage, { IMessageSchema } from "../message/IMessage";
 import validateSchema from "../util/validateSchema";
 
 export type INotificationSubscription =
@@ -13,7 +12,7 @@ export interface IBaseNotificationSubscription {
 
 export interface IWebNotificationSubscription
   extends IBaseNotificationSubscription {
-  type: 'web';
+  type: "web";
   subscription: IWebSubscription;
 }
 
@@ -28,7 +27,7 @@ export interface IWebSubscription {
 
 export interface IMobileNotificationSubscription
   extends IBaseNotificationSubscription {
-  type: 'mobile';
+  type: "mobile";
   subscription: string;
 }
 
@@ -42,20 +41,20 @@ export const INotificationSubscriptionSchema: Schema = {
           type: "object",
           properties: {
             endpoint: { type: "string", format: "uri" },
-            expirationTime: { type: "string" },
+            expirationTime: { type: [ "string", "null" ] },
             keys: {
               type: "object",
               properties: {
                 p256dh: { type: "string" },
                 auth: { type: "string" },
               },
-              required: ['p256dh', 'auth']
+              required: ["p256dh", "auth"],
             },
           },
-          required: ['endpoint', 'keys']
-        }
+          required: ["endpoint", "keys"],
+        },
       },
-      required: ["type", "subscription"]
+      required: ["type", "subscription"],
     },
     {
       type: "object",
@@ -63,9 +62,9 @@ export const INotificationSubscriptionSchema: Schema = {
         type: { type: "string", const: "mobile" },
         subscription: { type: "string" },
       },
-      required: ["type", "subscription"]
+      required: ["type", "subscription"],
     },
-  ]
+  ],
 };
 
 export function toINotificationSubscription(

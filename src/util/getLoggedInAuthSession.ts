@@ -2,7 +2,7 @@ import { Session } from "@inrupt/solid-auth-fetcher";
 import { Request } from "express";
 import HttpError from "./HttpError";
 
-interface ILoggedInAuthSession extends Session {
+export interface ILoggedInAuthSession extends Session {
   info: {
     isLoggedIn: true;
     webId: string;

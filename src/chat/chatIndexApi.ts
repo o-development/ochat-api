@@ -28,11 +28,3 @@ export async function retrieveChatIndex(chatUri: string): Promise<IChat> {
     throw new HttpError(`Chat ${chatUri} not found.`, 404, { uri: chatUri });
   }
 }
-
-export function updateChatIndex(chat: Partial<IChat>): Promise<IChat> {
-  throw new Error("Not Implemented");
-}
-
-export function deleteChatIndex(chatUri: string): Promise<IChat> {
-  throw new Error("Not Implemented");
-}
