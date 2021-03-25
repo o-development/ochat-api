@@ -21,6 +21,7 @@ export default interface IChat {
   images: string[];
   participants: IChatParticipant[];
   isPublic: boolean;
+  isDiscoverable?: boolean;
   lastMessage?: IMessage;
   error?: { message: string; metadata: Record<string, unknown> };
 }
@@ -48,6 +49,7 @@ export const IChatPartialSchema: Schema = {
       },
     },
     isPublic: { type: "boolean" },
+    isDiscoverable: { type: "boolean" },
     lastMessage: IMessageSchema,
     error: {
       type: "object",

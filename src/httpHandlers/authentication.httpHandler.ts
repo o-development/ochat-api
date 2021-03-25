@@ -8,6 +8,7 @@ import {
 } from "../util/AuthSessionManager";
 import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import { Request } from "express";
+import HttpError from "src/util/HttpError";
 
 const hostUrl = process.env.HOST_URL || "http://localhost:9000";
 const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:19006";
@@ -19,7 +20,15 @@ if (!sessionSecret) {
 }
 
 function isFromWebClient(req: Request): boolean {
-  return !!req.session && !!req.session.redirect && new URL(req.session.redirect).origin === clientOrigin;
+  try {
+    return !!req.session && !!req.session.redirect && new URL(req.session.redirect).origin === clientOrigin;
+  } catch (err: unknown) {
+    if ((err as Error).message) {
+      throw new HttpError((err as Error).message, 500, { requestSession: req.session })
+    } else {
+      throw err;
+    }
+  }
 }
 
 const authenticationHandler: IHttpHandler = (app) => {
@@ -37,17 +46,25 @@ const authenticationHandler: IHttpHandler = (app) => {
   app.get("/auth/login", async (req, res) => {
     const { redirect, issuer } = req.query;
 
-    const session = await sessionManager.getSession(req.sessionID);
-    if (req.session && typeof redirect === 'string') {
-      req.session.redirect = redirect;
+    try {
+      const session = await sessionManager.getSession(req.sessionID);
+      if (req.session && typeof redirect === 'string') {
+        req.session.redirect = redirect;
+      }
+      await session.login({
+        oidcIssuer: new URL(issuer as string),
+        redirectUrl: new URL(`${hostUrl}/auth/callback`),
+        handleRedirect: (redirectUrl) => {
+          res.redirect(redirectUrl);
+        },
+      });
+    } catch (err: unknown) {
+      if ((err as Error).message) {
+        throw new HttpError((err as Error).message, 500, { requestQuery: req.query })
+      } else {
+        throw err;
+      }
     }
-    await session.login({
-      oidcIssuer: new URL(issuer as string),
-      redirectUrl: new URL(`${hostUrl}/auth/callback`),
-      handleRedirect: (redirectUrl) => {
-        res.redirect(redirectUrl);
-      },
-    });
   });
 
   app.get("/auth/callback", async (req, res) => {

@@ -29,19 +29,21 @@ const chatHandler: IHttpHandler = (app) => {
     if (
       (req.query.term && typeof req.query.term !== "string") ||
       (req.query.page && typeof req.query.page !== "string") ||
-      (req.query.limit && typeof req.query.limit !== "string")
+      (req.query.limit && typeof req.query.limit !== "string") ||
+      (req.query.discoverable && typeof req.query.discoverable !== "string")
     ) {
       throw new HttpError(
-        "Only one parameter is allowed for term, page, and limit",
+        "Only one parameter is allowed for term, page, limit, and discoverable",
         400
       );
     }
     const term = req.query.term;
     const page = parseInt(req.query.page || "0");
     const limit = parseInt(req.query.limit || "10");
+    const discoverable = Boolean(req.query.discoverable);
     const includeProfiles = !!term;
     const searchResults = await searchChats(
-      { term, page, limit, includeProfiles },
+      { term, page, limit, includeProfiles, discoverable },
       {
         fetcher: authSession.fetch.bind(req.authSession),
         webId: authSession.info.webId,

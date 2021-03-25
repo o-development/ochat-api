@@ -7,10 +7,12 @@ import {
   dateCreatedElements,
   dateCreatedTerms,
   flowMessage,
+  isDiscoverable,
   LongChat,
   maker,
   rdfType,
   title,
+  xslBoolean,
   xslDateTime,
 } from "../../util/nodes";
 import {
@@ -166,7 +168,8 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
         dateCreatedElements,
         literal(new Date().toISOString(), xslDateTime)
       )
-      .addOut(title, chat.name);
+      .addOut(title, chat.name)
+      .addOut(isDiscoverable, literal(Boolean(chat.isDiscoverable) ? "1" : "0", xslBoolean))
     // Save Index
     await patchClownfaceDataset(this.uri, ds, { fetcher: this.fetcher });
     // Save Auth

@@ -50,7 +50,6 @@ export default function socketHandler(httpServer: HttpServer): void {
     // Authentication
     let authSession: AuthSession;
     try {
-      console.log('getting auth')
       let auth: string;
       // socket.io poorly defines "headers" as "object"
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -65,7 +64,6 @@ export default function socketHandler(httpServer: HttpServer): void {
         throw new HttpError('No credentials were provided', 401);
       }
 
-      console.log('got auth ', auth);
       if (!auth) {
         throw new HttpError("Authentication must be provided", 401);
       }
@@ -76,14 +74,11 @@ export default function socketHandler(httpServer: HttpServer): void {
 
       // Add to the sockets list
       const webId = authSession.info.webId;
-      console.log('got webid', webId)
-      console.log(socketsByWebId)
       if (socketsByWebId[webId]) {
         socketsByWebId[webId].push(socket);
       } else {
         socketsByWebId[webId] = [socket];
       }
-      console.log(socketsByWebId)
       // Clean up
       socket.on("close", () => {
         const socketIndex = socketsByWebId[webId].indexOf(socket);
@@ -93,7 +88,6 @@ export default function socketHandler(httpServer: HttpServer): void {
       });
     } catch (err) {
       // If it's not authenticated, do nothing
-      console.error(err);
     }
 
     // Let the socket subscribe to a public chat, even if not authenticated
