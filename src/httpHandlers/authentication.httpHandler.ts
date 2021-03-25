@@ -8,7 +8,7 @@ import {
 } from "../util/AuthSessionManager";
 import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import { Request } from "express";
-import HttpError from "src/util/HttpError";
+import HttpError from "../util/HttpError";
 
 const hostUrl = process.env.HOST_URL || "http://localhost:9000";
 const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:19006";
