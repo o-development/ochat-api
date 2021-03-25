@@ -11,6 +11,7 @@ export default async function searchChats(
     page: number;
     limit: number;
     term?: string;
+    discoverable?: boolean;
   },
   options: { fetcher?: IFetcher; webId: string }
 ): Promise<{ chats: IChat[]; profiles?: IProfile[] }> {
@@ -19,14 +20,15 @@ export default async function searchChats(
   let chatSearchQuery: FilterQuery<IChat> = {
     "participants.webId": options.webId,
   };
+  if (searchOptions.discoverable) {
+    chatSearchQuery = {
+      isPublic: true,
+      isDiscoverable: true
+    }
+  }
   if (searchOptions.term) {
     chatSearchQuery = {
-      $or: [
-        chatSearchQuery,
-        {
-          isPublic: true,
-        }
-      ],
+      ...chatSearchQuery,
       $text: { $search: searchOptions.term }
     }
   }

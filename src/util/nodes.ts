@@ -40,6 +40,7 @@ export const messgae = namedNode("http://www.w3.org/2005/01/wf/flow#message");
 export const dateCreatedTerms = namedNode("http://purl.org/dc/terms/created");
 export const content = namedNode("http://rdfs.org/sioc/ns#content");
 export const maker = namedNode("http://xmlns.com/foaf/0.1/maker");
+export const isDiscoverable = namedNode("https://liqid.chat/terms/isDiscoverable");
 
 // LDP types
 export const container = namedNode("http://www.w3.org/ns/ldp#Container");
@@ -55,3 +56,6 @@ export const flowMessage = namedNode(
 export const xslDateTime = namedNode(
   "http://www.w3.org/2001/XMLSchema#dateTime"
 );
+export const xslBoolean = namedNode(
+  "http://www.w3.org/2001/XMLSchema#boolean"
+)
