@@ -9,6 +9,7 @@ import newChatIndex from "../chat/newChatIndex";
 import updateChatIndex from "../chat/updateChatIndex";
 import getChatIndex from "../chat/getChatIndex";
 import addParticipantToPublicChat from '../chat/addParticipantToPublicChat';
+import loadChatsByTypeIndex from '../chat/loadChatsByTypeIndex';
 
 const chatHandler: IHttpHandler = (app) => {
   // New Chat
@@ -68,6 +69,16 @@ const chatHandler: IHttpHandler = (app) => {
     res.status(200).send(chat);
   });
 
+  // New chat indicies based on logged in user
+  app.post("/chat/authenticated", async (req, res) => {
+    const authSession = getLoggedInAuthSession(req);
+    await loadChatsByTypeIndex({
+      fetcher: authSession.fetch.bind(authSession),
+      webId: authSession.info.webId,
+    });
+    res.status(201).send();
+  });
+
   // New Chat Index
   app.post("/chat/:chat_uri", async (req, res) => {
     const authSession = getLoggedInAuthSession(req);
@@ -91,6 +102,7 @@ const chatHandler: IHttpHandler = (app) => {
     res.status(200).send(savedChat);
   });
 
+  // Add a participant to a public chat
   app.put("/chat/:chat_url/authenticated", async (req, res) => {
     const authSession = getLoggedInAuthSession(req);
     const chatUri = toUri(req.params.chat_url);

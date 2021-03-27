@@ -137,16 +137,17 @@ export async function patchClownfaceDataset(
     : undefined;
 
   const trueFetcher = guaranteeFetcher(options?.fetcher);
+  const body = `${
+    removeTripleString ? `DELETE DATA { ${removeTripleString} }; ` : ""
+  }INSERT DATA { ${addTripleString} }`;
   const response = await trueFetcher(uri, {
     method: "PATCH",
-    body: `${
-      removeTripleString ? `DELETE DATA { ${removeTripleString} }; ` : ""
-    }INSERT DATA { ${addTripleString} }`,
+    body,
     headers: {
       "content-type": "application/sparql-update",
     },
   });
-  if (response.status !== 200) {
+  if (response.status !== 200 && response.status !== 205) {
     throw new HttpError(`Could not write to pod at ${uri}`, 500);
   }
 }

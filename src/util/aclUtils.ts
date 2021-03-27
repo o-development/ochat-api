@@ -42,7 +42,9 @@ export async function setAcl(
   const fetcher = guaranteeFetcher(possibleFetcher);
   // Fetch the SolidDataset and its associated ACLs, if available:
   const myDatasetWithAcl = await getSolidDatasetWithAcl(url, {
-    fetch: fetcher,
+    fetch: (info, init) => {
+      return fetcher(info, init)
+    },
   });
 
   // Obtain the SolidDataset's own ACL, if available,
