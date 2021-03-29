@@ -140,6 +140,7 @@ export async function patchClownfaceDataset(
   const body = `${
     removeTripleString ? `DELETE DATA { ${removeTripleString} }; ` : ""
   }INSERT DATA { ${addTripleString} }`;
+  console.log(body);
   const response = await trueFetcher(uri, {
     method: "PATCH",
     body,
@@ -148,6 +149,8 @@ export async function patchClownfaceDataset(
     },
   });
   if (response.status !== 200 && response.status !== 205) {
+    console.log(response.status);
+    console.log(await response.text());
     throw new HttpError(`Could not write to pod at ${uri}`, 500);
   }
 }

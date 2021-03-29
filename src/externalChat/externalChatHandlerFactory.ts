@@ -1,8 +1,9 @@
 import { fetchClownfaceNode } from "../util/clownFaceUtils";
 import AbstractExternalChatHandler from "./AbstractExternalChatHandler";
-import { LongChat, rdfType, ShortChat } from "../util/nodes";
+import { LongChat, rdfType, ShortChat, SplitChat } from "../util/nodes";
 import LongChatExternalChatHandler from "./longChat/LongChatExternalChatHandler";
 import ShortChatExternalChatHandler from "./ShortChatExternalChatHandler";
+import SplitChatExternalChatHandler from "./splitChat/SplitChatExternalChatHandler";
 import IFetcher from "../util/IFetcher";
 import { IChatType } from "../chat/IChat";
 import HttpError from "../util/HttpError";
@@ -29,12 +30,16 @@ export default async function externalChatHanderFactory(
         return new ShortChatExternalChatHandler(uri, chatType, {
           fetcher: options?.fetcher,
         });
+      case IChatType.SplitChat:
+        return new SplitChatExternalChatHandler(uri, chatType, {
+          fetcher: options?.fetcher,
+        })
     }
   }
 
   const chatNode = await fetchClownfaceNode(
     uri,
-    [LongChat, ShortChat],
+    [LongChat, ShortChat, SplitChat],
     options?.fetcher
   );
   const chatNodeTypes = chatNode.out(rdfType).values;
@@ -46,6 +51,10 @@ export default async function externalChatHanderFactory(
         });
       case ShortChat.value:
         return ShortChatExternalChatHandler.fromClownfaceNode(uri, chatNode, {
+          fetcher: options?.fetcher,
+        });
+      case SplitChat.value:
+        return SplitChatExternalChatHandler.fromClownfaceNode(uri, chatNode, {
           fetcher: options?.fetcher,
         });
     }

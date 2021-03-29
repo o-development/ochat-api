@@ -29,6 +29,7 @@ export const sharedPreferences = namedNode(
 );
 export const LongChat = namedNode("http://www.w3.org/ns/pim/meeting#LongChat");
 export const ShortChat = namedNode("http://www.w3.org/ns/pim/meeting#Chat");
+export const SplitChat = namedNode("https://liqid.chat/terms/SplitChat");
 export const dateStart = namedNode(
   "http://www.w3.org/2002/12/cal/ical#dtstart"
 );
@@ -43,6 +44,12 @@ export const dateCreatedTerms = namedNode("http://purl.org/dc/terms/created");
 export const content = namedNode("http://rdfs.org/sioc/ns#content");
 export const maker = namedNode("http://xmlns.com/foaf/0.1/maker");
 export const isDiscoverable = namedNode("https://liqid.chat/terms/isDiscoverable");
+export const isPublic = namedNode("https://liqid.chat/terms/isPublic");
+export const isAdmin = namedNode("https://liqid.chat/terms/isAdmin");
+export const messageContainer = namedNode("https://liqid.chat/terms/messageContainer");
+export const splitChatMessageGroup = namedNode("https://liqid.chat/terms/hasMessageGroup");
+export const MessageGroup = namedNode("https://liqid.chat/terms/MessageGroup");
+
 
 // LDP types
 export const container = namedNode("http://www.w3.org/ns/ldp#Container");

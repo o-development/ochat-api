@@ -5,12 +5,14 @@ import validateSchema from "../util/validateSchema";
 export enum IChatType {
   LongChat = "LongChat",
   ShortChat = "ShortChat",
+  SplitChat = "SplitChat",
 }
 
 export interface IChatParticipant {
   name?: string;
   webId: string;
   image?: string;
+  messageContainer?: string;
   isAdmin: boolean;
 }
 
@@ -30,7 +32,7 @@ export const IChatPartialSchema: Schema = {
   type: "object",
   properties: {
     uri: { type: "string", format: "uri" },
-    type: { type: "string", enum: ["LongChat", "ShortChat"] },
+    type: { type: "string", enum: ["LongChat", "ShortChat", "SplitChat"] },
     name: { type: ["string", "null"] },
     images: {
       type: "array",

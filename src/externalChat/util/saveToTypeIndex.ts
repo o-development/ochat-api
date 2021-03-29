@@ -4,11 +4,13 @@ import { FoafPerson, forClass, instance, LongChat, privateTypeIndex, publicTypeI
 import { v4 } from 'uuid';
 import IFetcher from '../../util/IFetcher'
 import { namedNode } from '@rdfjs/dataset';
+import { NamedNode } from 'rdf-js';
 
 export default async function saveToTypeIndex(
   chatUri: string, 
   isPublic: boolean,
-  options: { fetcher: IFetcher, webId: string }
+  rdfClass: NamedNode,
+  options: { fetcher?: IFetcher, webId: string }
 ) {
   const profileNode = await fetchClownfaceNode(
     options.webId,
@@ -25,7 +27,7 @@ export default async function saveToTypeIndex(
   const ds = getBlankClownfaceDataset();
   ds.namedNode(`${typeIndexUri}#${v4()}`)
     .addOut(rdfType, TypeRegistration)
-    .addOut(forClass, LongChat)
+    .addOut(forClass, rdfClass)
     .addOut(instance, namedNode(chatUri));
   await patchClownfaceDataset(typeIndexUri, ds, { fetcher: options.fetcher });
 }
