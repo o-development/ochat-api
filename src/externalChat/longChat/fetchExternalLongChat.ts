@@ -25,7 +25,6 @@ export function processClownfaceChatNode(
   node: AnyPointer,
   optionalChatInfo: Partial<IChat> = {}
 ): Partial<IChat> {
-  console.log(node.out(isDiscoverable).value)
   return {
     ...optionalChatInfo,
     name: node.out(title).value || "",

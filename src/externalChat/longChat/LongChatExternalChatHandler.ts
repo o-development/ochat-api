@@ -32,6 +32,7 @@ import saveExternalChatParticipants from "../util/saveExternalChatParticipants";
 import fetchExternalLongChat, {
   processClownfaceChatNode,
 } from "./fetchExternalLongChat";
+import saveToTypeIndex from './saveToTypeIndex';
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   constructor(
@@ -172,6 +173,12 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
       .addOut(isDiscoverable, literal(Boolean(chat.isDiscoverable) ? "1" : "0", xslBoolean))
     // Save Index
     await patchClownfaceDataset(this.uri, ds, { fetcher: this.fetcher });
+    // Save to Type Index
+    try {
+      await saveToTypeIndex(this.uri, chat.isPublic, { fetcher: this.fetcher, webId: administrator.webId });
+    } catch (err: unknown) {
+      // Do nothing
+    }
     // Save Auth
     await this.updateExternalChatParticipants(chat.participants, chat.isPublic);
   }
