@@ -3,6 +3,7 @@ import ExpoSdk from "../util/ExpoSdk";
 import { Expo } from "expo-server-sdk";
 import { ExpoPushMessage } from "expo-server-sdk";
 import { getNotificationSubscriptionsByWebId } from "./notificationSubscriptionApi";
+import { getChatMuteSetting } from "./notificationMuteSettingApi";
 
 const vapidPublicKey = process.env.PUSH_SERVER_PUBLIC_KEY;
 const vapidPrivateKey = process.env.PUSH_SERVER_PRIVATE_KEY;
@@ -29,6 +30,11 @@ export default async function sendNotifications(
   if (!subscriptions) {
     return;
   }
+  const muteSetting = await getChatMuteSetting(notificationInformation.chatUri, webId);
+  if (muteSetting) {
+    return;
+  }
+
   await Promise.all([
     Object.values(subscriptions).map(async (subscription) => {
       if (subscription.type === "web") {

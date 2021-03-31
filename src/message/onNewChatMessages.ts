@@ -54,12 +54,14 @@ export default async function onNewChatMessages(
   // Send Notification
   await Promise.all(
     messagesToPost.map(async (message) => {
+      const makerProfile = chat.participants.find((participant) => participant.webId === message.maker);
+      const makerName = makerProfile ? (makerProfile.name || makerProfile.webId) : chat.name;
       await Promise.all(
         chat.participants
-          .filter((participant) => participant.webId === message.maker)
+          .filter((participant) => participant.webId !== message.maker)
           .map(async (participant) => {
             await sendNotifications(participant.webId, {
-              title: participant.name || participant.webId,
+              title: makerName,
               text: message.content,
               chatUri: chat.uri,
             });
