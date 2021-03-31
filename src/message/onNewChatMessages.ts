@@ -56,7 +56,7 @@ export default async function onNewChatMessages(
     messagesToPost.map(async (message) => {
       await Promise.all(
         chat.participants
-          .filter((participant) => participant.webId !== message.maker)
+          .filter((participant) => participant.webId === message.maker)
           .map(async (participant) => {
             await sendNotifications(participant.webId, {
               title: participant.name || participant.webId,

@@ -42,6 +42,7 @@ export default async function sendNotifications(
               url: `${clientOrigin}/chat?id=${encodeURIComponent(
                 notificationInformation.chatUri
               )}`,
+              tag: notificationInformation.chatUri,
             })
           );
         } catch {}
