@@ -147,7 +147,7 @@ export async function patchClownfaceDataset(
       "content-type": "application/sparql-update",
     },
   });
-  if (response.status !== 200 && response.status !== 205) {
+  if (response.status !== 200 && response.status !== 205 && response.status !== 201) {
     throw new HttpError(`Could not write to pod at ${uri}`, 500);
   }
 }
