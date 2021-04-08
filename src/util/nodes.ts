@@ -43,6 +43,7 @@ export const dateCreatedTerms = namedNode("http://purl.org/dc/terms/created");
 export const content = namedNode("http://rdfs.org/sioc/ns#content");
 export const maker = namedNode("http://xmlns.com/foaf/0.1/maker");
 export const isDiscoverable = namedNode("https://liqid.chat/terms/isDiscoverable");
+export const liqidChatSignedCredential = namedNode("https://liqid.chat/terms/liqidChatSignedCredential");
 
 // LDP types
 export const container = namedNode("http://www.w3.org/ns/ldp#Container");

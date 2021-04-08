@@ -7,6 +7,7 @@ export default interface IMessage {
   maker: string;
   content: string;
   timeCreated: string;
+  isInvalid?: boolean;
 }
 
 export interface IMessageCreationData {
@@ -23,6 +24,7 @@ export const IMessageSchema: Schema = {
     maker: { type: "string", format: "uri" },
     content: { type: "string" },
     timeCreated: { type: "string", format: "date-time" },
+    isInvalid: { type: "boolean" },
   },
   required: ["id", "page", "maker", "content", "timeCreated"],
 };
@@ -32,7 +34,7 @@ export const IMessageCreationDataSchema = {
   properties: {
     id: { type: "string" },
     maker: { type: "string", format: "uri" },
-    content: { type: "string" },
+    content: { type: "string" }
   },
   required: ["maker", "content"],
 };

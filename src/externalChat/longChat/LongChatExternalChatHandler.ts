@@ -8,6 +8,7 @@ import {
   dateCreatedTerms,
   flowMessage,
   isDiscoverable,
+  liqidChatSignedCredential,
   LongChat,
   maker,
   rdfType,
@@ -33,6 +34,7 @@ import fetchExternalLongChat, {
   processClownfaceChatNode,
 } from "./fetchExternalLongChat";
 import saveToTypeIndex from './saveToTypeIndex';
+import { generateJwtForMessage } from '../util/messageVerificationUtils';
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   constructor(
@@ -135,12 +137,15 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
     }`.slice(-2)}/${`0${date.getUTCDate()}`.slice(-2)}/chat.ttl`;
     const messageUri = `${messagePageUri}#${message.id}`;
 
+    const jwt = await generateJwtForMessage(message);
+
     // Patch the file to add message
     const ds = getBlankClownfaceDataset();
     ds.namedNode(messageUri)
       .addOut(maker, namedNode(message.maker))
       .addOut(content, literal(message.content))
       .addOut(dateCreatedTerms, literal(message.timeCreated, xslDateTime))
+      .addOut(liqidChatSignedCredential, literal(jwt))
       .addIn(flowMessage, namedNode(this.uri));
     await patchClownfaceDataset(messagePageUri, ds, { fetcher: this.fetcher });
     await addToCache(this.uri, messagePageUri);

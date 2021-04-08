@@ -6,8 +6,10 @@ import {
   content,
   dateCreatedTerms,
   flowMessage,
+  liqidChatSignedCredential,
   maker,
 } from "../../util/nodes";
+import { isMessageVerified } from "../util/messageVerificationUtils";
 
 export default async function fetchExternalLongChatMessages(
   chatUri: string,
@@ -20,8 +22,8 @@ export default async function fetchExternalLongChatMessages(
   );
   const messageContainerNode = messageDataset.node(namedNode(chatUri));
   const messageNodes = messageContainerNode.out(flowMessage);
-  return messageNodes.map(
-    (messageNode): IMessage => {
+  return Promise.all(messageNodes.map(
+    async (messageNode): Promise<IMessage> => {
       const nodeHash = new URL(messageNode.value).hash;
       const potentialMessage = {
         id: nodeHash.substring(1),
@@ -30,7 +32,10 @@ export default async function fetchExternalLongChatMessages(
         content: messageNode.out(content).value,
         timeCreated: messageNode.out(dateCreatedTerms).value,
       };
-      return toIMessage(potentialMessage);
+      const jwt = messageNode.out(liqidChatSignedCredential).value;
+      const message = toIMessage(potentialMessage);
+      message.isInvalid = !(await isMessageVerified(message, jwt));
+      return message;
     }
-  );
+  ));
 }
