@@ -33,7 +33,9 @@ export default async function newChat(
     indexedChat.uri,
     {
       maker: options.webId,
-      content: `${creatorsName} created "${chatData.name}"`,
+      content: {
+        text: `${creatorsName} created "${chatData.name}"`,
+      },
     },
     { fetcher: options.fetcher, webId: options.webId }
   );

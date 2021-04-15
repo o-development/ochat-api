@@ -77,6 +77,11 @@ const IChatSchema: Schema = {
 };
 
 export function toIChat(potentialIChat: unknown): IChat {
+  // Correct for legacy way of storing data
+  const castChat = potentialIChat as IChat
+  if (typeof castChat.lastMessage?.content === 'string') {
+    castChat.lastMessage.content = { text: castChat.lastMessage.content };
+  }
   const val = validateSchema(potentialIChat, IChatSchema);
   // Remove Id for MongoDb
   if (!!val && !!(val as { _id?: string })._id) {

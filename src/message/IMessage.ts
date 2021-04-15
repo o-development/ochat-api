@@ -5,7 +5,11 @@ export default interface IMessage {
   id: string;
   page: string;
   maker: string;
-  content: string;
+  content: {
+    text?: string;
+    image?: string;
+    file?: string;
+  };
   timeCreated: string;
   isInvalid?: boolean;
 }
@@ -13,7 +17,11 @@ export default interface IMessage {
 export interface IMessageCreationData {
   id?: string;
   maker: string;
-  content: string;
+  content: {
+    text?: string;
+    image?: string;
+    file?: string;
+  };
 }
 
 export const IMessageSchema: Schema = {
@@ -22,7 +30,14 @@ export const IMessageSchema: Schema = {
     id: { type: "string" },
     page: { type: "string" },
     maker: { type: "string", format: "uri" },
-    content: { type: "string" },
+    content: {
+      type: "object",
+      properties: {
+        text: { type: "string" },
+        image: { type: "string" },
+        file: { type: "string" },
+      }
+    },
     timeCreated: { type: "string", format: "date-time" },
     isInvalid: { type: "boolean" },
   },
@@ -34,7 +49,14 @@ export const IMessageCreationDataSchema = {
   properties: {
     id: { type: "string" },
     maker: { type: "string", format: "uri" },
-    content: { type: "string" }
+    content: {
+      type: "object",
+      properties: {
+        text: { type: "string" },
+        image: { type: "string" },
+        file: { type: "string" },
+      },
+    },
   },
   required: ["maker", "content"],
 };

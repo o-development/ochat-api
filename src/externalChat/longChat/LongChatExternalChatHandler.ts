@@ -8,6 +8,8 @@ import {
   dateCreatedTerms,
   flowMessage,
   isDiscoverable,
+  liqidChatFile,
+  liqidChatImage,
   liqidChatSignedCredential,
   LongChat,
   maker,
@@ -141,12 +143,21 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
 
     // Patch the file to add message
     const ds = getBlankClownfaceDataset();
-    ds.namedNode(messageUri)
+    const messageNode = ds.namedNode(messageUri)
       .addOut(maker, namedNode(message.maker))
-      .addOut(content, literal(message.content))
       .addOut(dateCreatedTerms, literal(message.timeCreated, xslDateTime))
       .addOut(liqidChatSignedCredential, literal(jwt))
       .addIn(flowMessage, namedNode(this.uri));
+
+    if (message.content.text) {
+      messageNode.addOut(content, literal(message.content.text));
+    }
+    if (message.content.image) {
+      messageNode.addOut(liqidChatImage, namedNode(message.content.image));
+    }
+    if (message.content.file) {
+      messageNode.addOut(liqidChatFile, namedNode(message.content.file));
+    }
     await patchClownfaceDataset(messagePageUri, ds, { fetcher: this.fetcher });
     await addToCache(this.uri, messagePageUri);
     return {

@@ -5,6 +5,7 @@ import chatHandler from "./chat.httpHandler";
 import messageHandler from "./message.httpHandler";
 import notificationSettingHandler from "./notificationSetting.httpHandler";
 import errorHandler from "./error.httpHandler";
+import fileUpload from './fileUpload.httpHandler';
 
 const handlers: IHttpHandler[] = [
   authenticationHandler,
@@ -12,6 +13,7 @@ const handlers: IHttpHandler[] = [
   chatHandler,
   messageHandler,
   notificationSettingHandler,
+  fileUpload,
   errorHandler,
 ];
 

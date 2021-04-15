@@ -6,6 +6,8 @@ import {
   content,
   dateCreatedTerms,
   flowMessage,
+  liqidChatFile,
+  liqidChatImage,
   liqidChatSignedCredential,
   maker,
 } from "../../util/nodes";
@@ -29,7 +31,11 @@ export default async function fetchExternalLongChatMessages(
         id: nodeHash.substring(1),
         page: chatMessageDocumentUrl,
         maker: messageNode.out(maker).value,
-        content: messageNode.out(content).value,
+        content: {
+          text: messageNode.out(content).value,
+          image: messageNode.out(liqidChatImage).value,
+          file: messageNode.out(liqidChatFile).value,
+        },
         timeCreated: messageNode.out(dateCreatedTerms).value,
       };
       const jwt = messageNode.out(liqidChatSignedCredential).value;
