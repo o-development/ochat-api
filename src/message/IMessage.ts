@@ -6,9 +6,10 @@ export default interface IMessage {
   page: string;
   maker: string;
   content: {
-    text?: string;
-    image?: string;
-    file?: string;
+    text?: string[];
+    image?: string[];
+    file?: string[];
+    video?: string[];
   };
   timeCreated: string;
   isInvalid?: boolean;
@@ -18,9 +19,10 @@ export interface IMessageCreationData {
   id?: string;
   maker: string;
   content: {
-    text?: string;
-    image?: string;
-    file?: string;
+    text?: string[];
+    image?: string[];
+    file?: string[];
+    video?: string[];
   };
 }
 
@@ -33,9 +35,10 @@ export const IMessageSchema: Schema = {
     content: {
       type: "object",
       properties: {
-        text: { type: "string" },
-        image: { type: "string" },
-        file: { type: "string" },
+        text: { type: "array", items: { type: 'string' } },
+        image: { type: "array", items: { type: 'string' } },
+        file: { type: "array", items: { type: 'string' } },
+        video: { type: "array", items: { type: 'string' } },
       }
     },
     timeCreated: { type: "string", format: "date-time" },
@@ -52,9 +55,10 @@ export const IMessageCreationDataSchema = {
     content: {
       type: "object",
       properties: {
-        text: { type: "string" },
-        image: { type: "string" },
-        file: { type: "string" },
+        text: { type: "array", items: { type: 'string' } },
+        image: { type: "array", items: { type: 'string' } },
+        file: { type: "array", items: { type: 'string' } },
+        video: { type: "array", items: { type: 'string' } },
       },
     },
   },

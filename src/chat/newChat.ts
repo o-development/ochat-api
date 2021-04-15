@@ -34,7 +34,7 @@ export default async function newChat(
     {
       maker: options.webId,
       content: {
-        text: `${creatorsName} created "${chatData.name}"`,
+        text: [`${creatorsName} created "${chatData.name}"`],
       },
     },
     { fetcher: options.fetcher, webId: options.webId }

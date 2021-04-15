@@ -62,7 +62,7 @@ export default async function onNewChatMessages(
           .map(async (participant) => {
             let textToSend: string;
             if (message.content.text) {
-              textToSend = message.content.text;
+              textToSend = message.content.text[0];
             } else if (message.content.image) {
               textToSend = "Sent an image";
             } else if (message.content.file) {

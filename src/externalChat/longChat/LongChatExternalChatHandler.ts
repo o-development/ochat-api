@@ -3,16 +3,9 @@ import AbstractExternalChatHandler from "../AbstractExternalChatHandler";
 import IChat, { IChatParticipant, IChatType } from "../../chat/IChat";
 import {
   author,
-  content,
   dateCreatedElements,
-  dateCreatedTerms,
-  flowMessage,
   isDiscoverable,
-  liqidChatFile,
-  liqidChatImage,
-  liqidChatSignedCredential,
   LongChat,
-  maker,
   rdfType,
   title,
   xslBoolean,
@@ -36,7 +29,7 @@ import fetchExternalLongChat, {
   processClownfaceChatNode,
 } from "./fetchExternalLongChat";
 import saveToTypeIndex from './saveToTypeIndex';
-import { generateJwtForMessage } from '../util/messageVerificationUtils';
+import messageToLongChatDataset from './messageToLongChatDataset';
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   constructor(
@@ -131,33 +124,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async addMessage(message: IMessage): Promise<IMessage> {
-    // Construct chat.ttl uri from the date
-    const date = new Date(message.timeCreated);
-    const rootUri = getContainerUri(this.uri);
-    const messagePageUri = `${rootUri}${date.getUTCFullYear()}/${`0${
-      date.getUTCMonth() + 1
-    }`.slice(-2)}/${`0${date.getUTCDate()}`.slice(-2)}/chat.ttl`;
-    const messageUri = `${messagePageUri}#${message.id}`;
-
-    const jwt = await generateJwtForMessage(message);
-
-    // Patch the file to add message
-    const ds = getBlankClownfaceDataset();
-    const messageNode = ds.namedNode(messageUri)
-      .addOut(maker, namedNode(message.maker))
-      .addOut(dateCreatedTerms, literal(message.timeCreated, xslDateTime))
-      .addOut(liqidChatSignedCredential, literal(jwt))
-      .addIn(flowMessage, namedNode(this.uri));
-
-    if (message.content.text) {
-      messageNode.addOut(content, literal(message.content.text));
-    }
-    if (message.content.image) {
-      messageNode.addOut(liqidChatImage, namedNode(message.content.image));
-    }
-    if (message.content.file) {
-      messageNode.addOut(liqidChatFile, namedNode(message.content.file));
-    }
+    const [messagePageUri, ds] = await messageToLongChatDataset(message, this.uri);
     await patchClownfaceDataset(messagePageUri, ds, { fetcher: this.fetcher });
     await addToCache(this.uri, messagePageUri);
     return {

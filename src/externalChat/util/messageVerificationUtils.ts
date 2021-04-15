@@ -10,9 +10,10 @@ export interface IMessageVerificationDetails {
   maker: string;
   timeCreated: string;
   content: {
-    text?: string;
-    image?: string;
-    file?: string;
+    text?: string[];
+    image?: string[];
+    file?: string[];
+    video?: string[];
   }
 }
 
@@ -25,6 +26,15 @@ export async function generateJwtForMessage(message: IMessage): Promise<string> 
   return await sign(verificationDetails, JWT_SIGNATURE_KEY);
 }
 
+function areArraysEqual(arr1?: string[], arr2?: string[]): boolean {
+  if (!arr1 || !arr2) {
+    return !arr1 && !arr2;
+  }
+  const sortedArr1 = arr1.sort();
+  const sortedArr2 = arr2.sort();
+  return sortedArr1.every((value, index) => value === sortedArr2[index]);
+}
+
 export async function isMessageVerified(message: IMessage, jwt?: string): Promise<boolean> {
   if (!jwt) {
     return false;
@@ -34,13 +44,11 @@ export async function isMessageVerified(message: IMessage, jwt?: string): Promis
     if (!verificationDetails.maker || verificationDetails.maker !== message.maker) {
       return false;
     }
-    console.log('===================');
-    console.log(message.content);
-    console.log(verificationDetails.content);
     if (
-      message.content.text !== verificationDetails.content.text ||
-      message.content.image !== verificationDetails.content.image ||
-      message.content.file !== verificationDetails.content.file
+      !areArraysEqual(message.content.text, verificationDetails.content.text) ||
+      !areArraysEqual(message.content.image, verificationDetails.content.image) ||
+      !areArraysEqual(message.content.file, verificationDetails.content.file) ||
+      !areArraysEqual(message.content.video, verificationDetails.content.video)
     ) {
       return false;
     }
