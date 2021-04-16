@@ -41,8 +41,13 @@ export const backgroundColor = namedNode(
 export const messgae = namedNode("http://www.w3.org/2005/01/wf/flow#message");
 export const dateCreatedTerms = namedNode("http://purl.org/dc/terms/created");
 export const content = namedNode("http://rdfs.org/sioc/ns#content");
+export const ImageObject = namedNode("https://schema.org/ImageObject");
+export const contentUrl = namedNode("https://schema.org/contentUrl");
+export const MediaObject = namedNode("https://schema.org/MediaObject");
+export const VideoObject = namedNode("https://schema.org/VideoObject");
 export const maker = namedNode("http://xmlns.com/foaf/0.1/maker");
 export const isDiscoverable = namedNode("https://liqid.chat/terms/isDiscoverable");
+export const liqidChatSignedCredential = namedNode("https://liqid.chat/terms/liqidChatSignedCredential");
 
 // LDP types
 export const container = namedNode("http://www.w3.org/ns/ldp#Container");

@@ -60,9 +60,20 @@ export default async function onNewChatMessages(
         chat.participants
           .filter((participant) => participant.webId !== message.maker)
           .map(async (participant) => {
+            let textToSend: string;
+            if (message.content.text) {
+              textToSend = message.content.text[0];
+            } else if (message.content.image) {
+              textToSend = "Sent an image";
+            } else if (message.content.file) {
+              textToSend = "Sent a file";
+            } else {
+              textToSend = "Sent a message";
+            }
+
             await sendNotifications(participant.webId, {
               title: makerName,
-              text: message.content,
+              text: textToSend,
               chatUri: chat.uri,
             });
           })

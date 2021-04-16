@@ -3,13 +3,9 @@ import AbstractExternalChatHandler from "../AbstractExternalChatHandler";
 import IChat, { IChatParticipant, IChatType } from "../../chat/IChat";
 import {
   author,
-  content,
   dateCreatedElements,
-  dateCreatedTerms,
-  flowMessage,
   isDiscoverable,
   LongChat,
-  maker,
   rdfType,
   title,
   xslBoolean,
@@ -33,6 +29,7 @@ import fetchExternalLongChat, {
   processClownfaceChatNode,
 } from "./fetchExternalLongChat";
 import saveToTypeIndex from './saveToTypeIndex';
+import messageToLongChatDataset from './messageToLongChatDataset';
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   constructor(
@@ -127,21 +124,7 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
   }
 
   async addMessage(message: IMessage): Promise<IMessage> {
-    // Construct chat.ttl uri from the date
-    const date = new Date(message.timeCreated);
-    const rootUri = getContainerUri(this.uri);
-    const messagePageUri = `${rootUri}${date.getUTCFullYear()}/${`0${
-      date.getUTCMonth() + 1
-    }`.slice(-2)}/${`0${date.getUTCDate()}`.slice(-2)}/chat.ttl`;
-    const messageUri = `${messagePageUri}#${message.id}`;
-
-    // Patch the file to add message
-    const ds = getBlankClownfaceDataset();
-    ds.namedNode(messageUri)
-      .addOut(maker, namedNode(message.maker))
-      .addOut(content, literal(message.content))
-      .addOut(dateCreatedTerms, literal(message.timeCreated, xslDateTime))
-      .addIn(flowMessage, namedNode(this.uri));
+    const [messagePageUri, ds] = await messageToLongChatDataset(message, this.uri);
     await patchClownfaceDataset(messagePageUri, ds, { fetcher: this.fetcher });
     await addToCache(this.uri, messagePageUri);
     return {
