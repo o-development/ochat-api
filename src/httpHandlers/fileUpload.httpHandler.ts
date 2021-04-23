@@ -3,6 +3,7 @@ import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import HttpError from "../util/HttpError";
 import multer from 'multer';
 import toUri from "../util/toUri";
+import externalChatHanderFactory from "../externalChat/externalChatHandlerFactory";
 
 const fileUploadHandler: IHttpHandler = (app) => {
   const uploadMiddleware = multer({
@@ -28,21 +29,9 @@ const fileUploadHandler: IHttpHandler = (app) => {
     const chatUri = toUri(req.query.chat_uri as string);
     const mimeType = req.query.mime_type;
     const fileName = req.query.file_name;
-
-    
-    const fetchUri = `https://jackson.solidcommunity.net/public/public-writable/${fileName}`;
-    const response = await fetch(fetchUri, {
-      method: 'PUT',
-      body: req.file.buffer,
-      headers: {
-        "content-type": mimeType
-      }
-    });
-    if (response.status === 200 || response.status === 201) {
-      res.status(201).send(fetchUri);
-    } else {
-      throw new HttpError('Could not upload to Pod.', 500);
-    }
+    const chatHandler = await externalChatHanderFactory(chatUri, undefined, { fetcher: fetch })
+    const fileUri = await chatHandler.saveFile(req.file.buffer, mimeType, fileName);
+    res.status(201).send(fileUri);
   });
 };
 

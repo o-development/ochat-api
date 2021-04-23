@@ -21,13 +21,18 @@ import {
 } from "../../util/clownFaceUtils";
 import { namedNode, literal } from "@rdfjs/dataset";
 
+export function getMessageContainer(chatUri: string, date: Date): string {
+  const rootUri = getContainerUri(chatUri);
+  return `${rootUri}${date.getUTCFullYear()}/${`0${
+    date.getUTCMonth() + 1
+  }`.slice(-2)}/${`0${date.getUTCDate()}`.slice(-2)}`;
+
+}
+
 export default async function messageToLongChatDataset(message: IMessage, chatUri: string): Promise<[string, Clownface]> {
   // Construct chat.ttl uri from the date
-  const date = new Date(message.timeCreated);
-  const rootUri = getContainerUri(chatUri);
-  const messagePageUri = `${rootUri}${date.getUTCFullYear()}/${`0${
-    date.getUTCMonth() + 1
-  }`.slice(-2)}/${`0${date.getUTCDate()}`.slice(-2)}/chat.ttl`;
+  const messageContainer = getMessageContainer(chatUri, new Date(message.timeCreated));
+  const messagePageUri = `${messageContainer}/chat.ttl`;
   const messageUri = `${messagePageUri}#${message.id}`;
 
   const jwt = await generateJwtForMessage(message);
