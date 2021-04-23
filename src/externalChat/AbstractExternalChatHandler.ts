@@ -100,4 +100,7 @@ export default abstract class AbstractExternalChatHandler {
   ): Promise<void>;
 
   abstract runStartupTask(): Promise<void>;
+
+  // Returns the file uri it was saved to
+  abstract saveFile(body: Buffer, mimeType: string, fileName: string): Promise<string>;
 }

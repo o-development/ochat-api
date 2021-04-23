@@ -29,7 +29,7 @@ import fetchExternalLongChat, {
   processClownfaceChatNode,
 } from "./fetchExternalLongChat";
 import saveToTypeIndex from './saveToTypeIndex';
-import messageToLongChatDataset from './messageToLongChatDataset';
+import messageToLongChatDataset, { getMessageContainer } from './messageToLongChatDataset';
 
 export default class LongChatExternalChatHandler extends AbstractExternalChatHandler {
   constructor(
@@ -229,6 +229,23 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
         );
       }
       throw err;
+    }
+  }
+
+  async saveFile(body: Buffer, mimeType: string, fileName: string): Promise<string> {
+    const fileUri = `${getMessageContainer(this.uri, new Date())}/${fileName}`;
+    console.log(fileUri);
+    const response = await this.fetcher(fileUri, {
+      method: 'PUT',
+      body: body,
+      headers: {
+        "content-type": mimeType
+      }
+    });
+    if (response.status === 200 || response.status === 201) {
+      return fileUri
+    } else {
+      throw new HttpError('Could not upload to Pod.', 500);
     }
   }
 }

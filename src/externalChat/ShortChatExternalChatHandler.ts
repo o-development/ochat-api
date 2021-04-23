@@ -64,4 +64,8 @@ export default class ShortChatExternalChatHandler extends AbstractExternalChatHa
   runStartupTask(): Promise<void> {
     throw new Error("Method not implemented.");
   }
+
+  saveFile(body: Buffer, mimeType: string, fileName: string): Promise<string> {
+    throw new Error("Method not implemented.");
+  }
 }
