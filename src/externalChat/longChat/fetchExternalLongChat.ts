@@ -2,7 +2,7 @@ import { AnyPointer } from "clownface";
 import IChat from "../../chat/IChat";
 import { fetchClownfaceNode } from "../../util/clownFaceUtils";
 import IFetcher from "../../util/IFetcher";
-import { foafImage, isDiscoverable, LongChat, title } from "../../util/nodes";
+import { foafImage, isDiscoverable, LongChat, schemaAbout, title } from "../../util/nodes";
 
 export default async function fetchExternalLongChat(
   uri: string,
@@ -29,6 +29,7 @@ export function processClownfaceChatNode(
     ...optionalChatInfo,
     name: node.out(title).value || "",
     images: node.out(foafImage).values,
-    isDiscoverable: node.out(isDiscoverable).value === "true"
+    isDiscoverable: node.out(isDiscoverable).value === "true",
+    subject: node.out(schemaAbout).value
   };
 }

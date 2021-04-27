@@ -48,6 +48,7 @@ export const VideoObject = namedNode("https://schema.org/VideoObject");
 export const maker = namedNode("http://xmlns.com/foaf/0.1/maker");
 export const isDiscoverable = namedNode("https://liqid.chat/terms/isDiscoverable");
 export const liqidChatSignedCredential = namedNode("https://liqid.chat/terms/liqidChatSignedCredential");
+export const schemaAbout = namedNode("https://schema.org/about");
 
 // LDP types
 export const container = namedNode("http://www.w3.org/ns/ldp#Container");

@@ -7,6 +7,7 @@ import {
   isDiscoverable,
   LongChat,
   rdfType,
+  schemaAbout,
   title,
   xslBoolean,
   xslDateTime,
@@ -153,7 +154,11 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
         literal(new Date().toISOString(), xslDateTime)
       )
       .addOut(title, chat.name)
-      .addOut(isDiscoverable, literal(Boolean(chat.isDiscoverable) ? "1" : "0", xslBoolean))
+      .addOut(isDiscoverable, literal(Boolean(chat.isDiscoverable) ? "1" : "0", xslBoolean));
+    if (chat.subject) {
+      ds.namedNode(this.uri).addOut(schemaAbout, namedNode(chat.subject));
+    }
+
     // Save Index
     await patchClownfaceDataset(this.uri, ds, { fetcher: this.fetcher });
     // Save to Type Index
@@ -234,7 +239,6 @@ export default class LongChatExternalChatHandler extends AbstractExternalChatHan
 
   async saveFile(body: Buffer, mimeType: string, fileName: string): Promise<string> {
     const fileUri = `${getMessageContainer(this.uri, new Date())}/${fileName}`;
-    console.log(fileUri);
     const response = await this.fetcher(fileUri, {
       method: 'PUT',
       body: body,
