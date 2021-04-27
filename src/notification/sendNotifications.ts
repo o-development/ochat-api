@@ -39,9 +39,6 @@ export default async function sendNotifications(
     Object.values(subscriptions).map(async (subscription) => {
       if (subscription.type === "web") {
         try {
-          console.log('sending notification');
-          console.log(subscription);
-          console.log(webId);
           await sendNotification(
             subscription.subscription,
             JSON.stringify({

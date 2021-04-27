@@ -23,6 +23,7 @@ export default interface IChat {
   isPublic: boolean;
   isDiscoverable?: boolean;
   lastMessage?: IMessage;
+  subject?: string;
   error?: { message: string; metadata: Record<string, unknown> };
 }
 
@@ -51,6 +52,7 @@ export const IChatPartialSchema: Schema = {
     isPublic: { type: "boolean" },
     isDiscoverable: { type: "boolean" },
     lastMessage: IMessageSchema,
+    subject: { type: "string" },
     error: {
       type: "object",
       properties: {
