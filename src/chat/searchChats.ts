@@ -23,14 +23,14 @@ export default async function searchChats(
   if (searchOptions.discoverable) {
     chatSearchQuery = {
       isPublic: true,
-      isDiscoverable: true
-    }
+      isDiscoverable: true,
+    };
   }
   if (searchOptions.term) {
     chatSearchQuery = {
       ...chatSearchQuery,
-      $text: { $search: searchOptions.term }
-    }
+      $text: { $search: searchOptions.term },
+    };
   }
   const chatPromise: Promise<IChat[]> = chatCollection
     .find(chatSearchQuery)
