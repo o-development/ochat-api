@@ -12,6 +12,7 @@ export default async function updateChatIndex(
   options: {
     webId: string;
     fetcher?: IFetcher;
+    preventAclUpdate?: boolean;
   }
 ): Promise<void> {
   const chatCollection = await getChatCollection();
@@ -35,10 +36,12 @@ export default async function updateChatIndex(
         403
       );
     }
-    await externalChatHandler.updateExternalChatParticipants(
-      chatData.participants || currentChat.participants,
-      chatData.isPublic || currentChat.isPublic
-    );
+    if (!options.preventAclUpdate) {
+      await externalChatHandler.updateExternalChatParticipants(
+        chatData.participants || currentChat.participants,
+        chatData.isPublic || currentChat.isPublic
+      );
+    }
   }
   if (chatData.name || chatData.images) {
     // Handle updating of images and name

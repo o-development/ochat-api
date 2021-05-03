@@ -22,6 +22,11 @@ export default async function addParticipantToPublicChat(chatUri: string, webId:
     }, {
       webId: adminAuthSession.info.webId,
       fetcher: adminAuthSession.fetch.bind(adminAuthSession),
+      // If the chat is public, only update admins. There is a glitch in Inrupt's
+      // library that causes access control rules to be duplicated uncontrollably
+      // So, if it's already public just leave it at that.
+      // https://github.com/inrupt/solid-client-js/issues/1019
+      preventAclUpdate: true,
     });
   }
 }
