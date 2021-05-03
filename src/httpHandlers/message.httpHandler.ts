@@ -15,7 +15,7 @@ const messageHandler: IHttpHandler = (app) => {
       fetcher = authSession.fetch.bind(authSession);
       webId = authSession.info.webId;
     } catch {
-      webId = 'public';
+      webId = "public";
     }
     const chatUri = toUri(req.params.chat_uri);
     let previousPageId: string | undefined = undefined;
@@ -28,7 +28,7 @@ const messageHandler: IHttpHandler = (app) => {
     const messages = await getChatMessages(chatUri, {
       previousPageId,
       fetcher,
-      webId, 
+      webId,
     });
     res.status(200).send(messages);
   });

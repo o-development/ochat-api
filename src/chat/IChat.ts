@@ -52,7 +52,7 @@ export const IChatPartialSchema: Schema = {
     isPublic: { type: "boolean" },
     isDiscoverable: { type: "boolean" },
     lastMessage: IMessageSchema,
-    subject: { type: "string" },
+    subject: { type: ["string", "null"] },
     error: {
       type: "object",
       properties: {
