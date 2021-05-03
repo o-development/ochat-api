@@ -21,10 +21,16 @@ if (!sessionSecret) {
 
 function isFromWebClient(req: Request): boolean {
   try {
-    return !!req.session && !!req.session.redirect && new URL(req.session.redirect).origin === clientOrigin;
+    return (
+      !!req.session &&
+      !!req.session.redirect &&
+      new URL(req.session.redirect).origin === clientOrigin
+    );
   } catch (err: unknown) {
     if ((err as Error).message) {
-      throw new HttpError((err as Error).message, 500, { requestSession: req.session })
+      throw new HttpError((err as Error).message, 500, {
+        requestSession: req.session,
+      });
     } else {
       throw err;
     }
@@ -48,19 +54,21 @@ const authenticationHandler: IHttpHandler = (app) => {
 
     try {
       const session = await sessionManager.getSession(req.sessionID);
-      if (req.session && typeof redirect === 'string') {
+      if (req.session && typeof redirect === "string") {
         req.session.redirect = redirect;
       }
       await session.login({
         oidcIssuer: new URL(issuer as string),
         redirectUrl: new URL(`${hostUrl}/auth/callback`),
-        handleRedirect: (redirectUrl) => {
+        handleRedirect: (redirectUrl: string) => {
           res.redirect(redirectUrl);
         },
       });
     } catch (err: unknown) {
       if ((err as Error).message) {
-        throw new HttpError((err as Error).message, 500, { requestQuery: req.query })
+        throw new HttpError((err as Error).message, 500, {
+          requestQuery: req.query,
+        });
       } else {
         throw err;
       }

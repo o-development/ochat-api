@@ -8,8 +8,8 @@ import getLoggedInAuthSession from "../util/getLoggedInAuthSession";
 import newChatIndex from "../chat/newChatIndex";
 import updateChatIndex from "../chat/updateChatIndex";
 import getChatIndex from "../chat/getChatIndex";
-import addParticipantToPublicChat from '../chat/addParticipantToPublicChat';
-import loadChatsByTypeIndex from '../chat/loadChatsByTypeIndex';
+import addParticipantToPublicChat from "../chat/addParticipantToPublicChat";
+import loadChatsByTypeIndex from "../chat/loadChatsByTypeIndex";
 
 const chatHandler: IHttpHandler = (app) => {
   // New Chat
@@ -60,7 +60,7 @@ const chatHandler: IHttpHandler = (app) => {
       const autSession = getLoggedInAuthSession(req);
       webId = autSession.info.webId;
     } catch {
-      webId = 'public';
+      webId = "public";
     }
     const chatUri = toUri(req.params.chat_uri);
     const chat = await getChatIndex(chatUri, {
@@ -108,7 +108,7 @@ const chatHandler: IHttpHandler = (app) => {
     const chatUri = toUri(req.params.chat_url);
     await addParticipantToPublicChat(chatUri, authSession.info.webId);
     res.status(200).send();
-  })
+  });
 };
 
 export default chatHandler;
